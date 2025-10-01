@@ -1,0 +1,26 @@
+@inject ShowtimeService showSrv
+@model List<Movie>
+
+@if (Model.Count == 0)
+{
+    <partial name="_NoResults" model="@("No movies found")" />
+}
+
+@foreach (var movie in Model)
+{
+    <div class="movie-poster-container" data-hover>
+        <img src="/uploads/poster/@movie.Poster">
+        <div class="hover-container" data-hover-container>
+            <div class="top">
+                <span class="title">@movie.Title</span>
+            </div>
+            <div class="bottom">
+                <a href="/Movie/Info/@movie.Slug" class="button-full" data-button="outline">View Info</a>
+                @if (showSrv.MovieHasActiveShowtime(movie.Id))
+                {
+                    <a href="/Movie/Showtimes/@movie.Slug" class="button-full" data-button="yellow">Buy Ticket</a>
+                }
+            </div>
+        </div>
+    </div>
+}

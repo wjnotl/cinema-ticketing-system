@@ -1,0 +1,34 @@
+@model AddHallVM
+
+@{
+    ViewBag.Title = "Add Hall | Supershow";
+}
+
+<form class="container info-container horizontal-center" method="post">
+    <input asp-for="CinemaId" hidden>
+
+    <div class="title">Add Hall - @ViewBag.CinemaName</div>
+    <div data-column-container="3">
+        <label asp-for="Name"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="Name">
+            </div>
+            <span asp-validation-for="Name"></span>
+        </div>
+
+        <label asp-for="Experience"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="input-group">
+                <div class="custom-select">
+                    <select asp-for="Experience" asp-items="Model.AvailableExperiences"></select>
+                </div>
+            </div>
+            <span asp-validation-for="Experience"></span>
+        </div>
+
+    </div>
+    <button data-button="green">Create</button>
+</form>

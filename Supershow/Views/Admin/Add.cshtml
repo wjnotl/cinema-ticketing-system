@@ -1,0 +1,88 @@
+@model AddAdminVM
+
+@{
+    ViewBag.Title = "Add Admin | Supershow";
+}
+
+@section head {
+    <style>
+        #select-cinema-branch-container {
+            display: none;
+        }
+
+        #select-cinema-branch-container.show {
+            display: block;
+        }
+
+        #cinema-branch-container:has(#select-cinema-branch-container.show) #cinema-branch-text {
+            display: none;
+        }
+    </style>
+}
+
+<form class="container info-container horizontal-center" method="post">
+    <div class="title">Add Admin</div>
+    <div data-column-container="3">
+        <label asp-for="Name"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="Name">
+            </div>
+            <span asp-validation-for="Name"></span>
+        </div>
+
+        <label asp-for="Email"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="Email">
+            </div>
+            <span asp-validation-for="Email"></span>
+        </div>
+
+        <label asp-for="AdminType"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="input-group">
+                <div class="custom-select">
+                    <select id="admin-type" asp-for="AdminType" asp-items="Model.AvailableAdminTypes"></select>
+                </div>
+            </div>
+            <span asp-validation-for="AdminType"></span>
+        </div>
+
+        <label asp-for="CinemaBranch"></label>
+        <div>:</div>
+        <div id="cinema-branch-container" class="form-group">
+            <div id="select-cinema-branch-container">
+                <div class="input-group">
+                    <div class="custom-select">
+                        <select asp-for="CinemaBranch" asp-items="Model.AvailableCinemas"></select>
+                    </div>
+                </div>
+                <span asp-validation-for="CinemaBranch"></span>
+            </div>
+            <span id="cinema-branch-text">Unknown</span>
+        </div>
+    </div>
+    <button data-button="green">Create</button>
+</form>
+
+@section foot {
+    <script>
+        const adminTypes = Array.from(@Html.Raw(Json.Serialize(Model.AvailableHQAdminTypes)));
+
+        renderCinemaBranch()
+        $("#admin-type").on("change", renderCinemaBranch)
+
+        function renderCinemaBranch() {
+            var selected = $("#admin-type").val();
+            if (adminTypes.includes(Number(selected))) {
+                $("#select-cinema-branch-container").removeClass("show");
+            } else {
+                $("#select-cinema-branch-container").addClass("show");
+            }
+        }
+    </script>
+}

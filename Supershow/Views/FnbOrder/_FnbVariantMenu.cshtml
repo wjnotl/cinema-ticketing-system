@@ -1,0 +1,40 @@
+@model (FnbOrder FnbOrder, List<FnbItemVariant> Variants)
+
+@{
+    bool initVariant = false;
+}
+
+@foreach (var variant in Model.Variants)
+{
+    var inventory = variant.FnbInventories.FirstOrDefault(i => i.CinemaId == Model.FnbOrder.CinemaId && i.FnbItemVariantId == variant.Id);
+    int stock = inventory != null ? inventory.Quantity : 0;
+    int quantity = Model.FnbOrder.FnbOrderItems.Where(f => f.FnbItemVariantId == variant.Id).Sum(f => f.Quantity);
+
+    if (initVariant)
+    {
+        <div class="divider-horizontal"></div>
+    }
+    else
+    {
+        initVariant = true;
+    }
+
+    <div class="product-variant-container form-group" data-fnb-variant="@variant.Id">
+        <div>
+            <img class="image" src="/uploads/fnb/@variant.Image">
+            <div class="product-variant-info-container">
+                <div class="name">@variant.Name</div>
+                <div class="description">@variant.Description</div>
+                <div class="stock">Stock: @stock</div>
+            </div>
+        </div>
+        <div>
+            <div class="price">@FormatService.ToRMFormat(variant.Price)</div>
+            <div class="quantity-container">
+                <button class="minus-quantity" data-button="yellow">-</button>
+                <div class="quantity-number" data-quantity-value="@quantity">@quantity</div>
+                <button class="add-quantity" data-button="yellow">+</button>
+            </div>
+        </div>
+    </div>
+}

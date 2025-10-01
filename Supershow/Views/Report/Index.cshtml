@@ -1,0 +1,278 @@
+@model SalesReportVM
+
+@{
+    ViewBag.Title = "Sales Report | Supershow";
+}
+
+@section head {
+    <style>
+        .sales-container .title {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .sales-container table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: var(--manage-container-background-color);
+            margin-bottom: 50px;
+            margin-top: 20px;
+        }
+
+        .sales-container th,
+        .sales-container td {
+            padding: 12px 16px;
+            text-align: left;
+        }
+
+        .sales-container th {
+            background-color: var(--manage-container-header-background-color);
+            font-weight: normal;
+            white-space: nowrap;
+            padding-right: 35px;
+        }
+
+        .sales-container tr td {
+            border-bottom: 1px solid var(--secondary-color);
+        }
+
+        .sales-container tr:last-child td {
+            border-bottom: none;
+        }
+
+        .sales-container th:first-child {
+            width: 1%;
+        }
+
+        .sales-container:has(input[type="radio"][value="annually"]:checked) .quarterly-table {
+            display: none;
+        }
+
+        .sales-container:has(input[type="radio"][value="quarterly"]:checked) .annually-table {
+            display: none;
+        }
+    </style>
+}
+
+<div class="container sales-container">
+    <div class="title">Sales Report</div>
+    <div class="custom-tick-container center-text center-items specified-width background">
+        <label>
+            <input type="radio" name="sales_report" value="annually" checked>
+            <div class="custom-tick-text">Anually</div>
+        </label>
+        <label>
+            <input type="radio" name="sales_report" value="quarterly">
+            <div class="custom-tick-text">Quarterly</div>
+        </label>
+    </div>
+
+    <table class="annually-table">
+        <thead>
+            <tr>
+                <th></th>
+                @foreach (var year in Model.Years)
+                {
+                    <th>@year</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var report in Model.SalesReportAnnually)
+            {
+                <tr>
+                    <th>@report.Key</th>
+                    @foreach (var amount in report.Value)
+                    {
+                        if (amount == null)
+                        {
+                            <td>N/A</td>
+                        }
+                        else
+                        {
+                            if (report.Key == "Revenue Growth")
+                            {
+                                <td>@FormatService.ToPercentage(amount.Value, true, true, true)</td>
+                            }
+                            else if (report.Key == "Total Booking/F&B Order Count")
+                            {
+                                <td>@((int)Math.Round(amount.Value))</td>
+                            }
+                            else
+                            {
+                                <td>@FormatService.ToRMFormat(amount.Value, true, true, true)</td>
+                            }
+                        }
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <table class="quarterly-table">
+        <thead>
+            <tr>
+                <th></th>
+                @foreach (var quarter in Model.Quarters)
+                {
+                    <th>@quarter</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var report in Model.SalesReportQuarterly)
+            {
+                <tr>
+                    <th>@report.Key</th>
+                    @foreach (var amount in report.Value)
+                    {
+                        if (amount == null)
+                        {
+                            <td>N/A</td>
+                        }
+                        else
+                        {
+                            if (report.Key == "Revenue Growth")
+                            {
+                                <td>@FormatService.ToPercentage(amount.Value, true, true, true)</td>
+                            }
+                            else if (report.Key == "Total Booking/F&B Order Count")
+                            {
+                                <td>@((int)Math.Round(amount.Value))</td>
+                            }
+                            else
+                            {
+                                <td>@FormatService.ToRMFormat(amount.Value, true, true, true)</td>
+                            }
+                        }
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="container sales-container">
+    <div class="title">Sales By Movie Genre</div>
+    <div class="custom-tick-container center-text center-items specified-width background">
+        <label>
+            <input type="radio" name="sales_by_movie_genre" value="annually" checked>
+            <div class="custom-tick-text">Anually</div>
+        </label>
+        <label>
+            <input type="radio" name="sales_by_movie_genre" value="quarterly">
+            <div class="custom-tick-text">Quarterly</div>
+        </label>
+    </div>
+
+    <table class="annually-table">
+        <thead>
+            <tr>
+                <th></th>
+                @foreach (var year in Model.Years)
+                {
+                    <th>@year</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var report in Model.SalesMovieGenreAnnually)
+            {
+                <tr>
+                    <th>@report.Key</th>
+                    @foreach (var amount in report.Value)
+                    {
+                        <td>@FormatService.ToRMFormat(amount, true, true, true)</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <table class="quarterly-table">
+        <thead>
+            <tr>
+                <th></th>
+                @foreach (var quarter in Model.Quarters)
+                {
+                    <th>@quarter</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var report in Model.SalesMovieGenreQuarterly)
+            {
+                <tr>
+                    <th>@report.Key</th>
+                    @foreach (var amount in report.Value)
+                    {
+                        <td>@FormatService.ToRMFormat(amount, true, true, true)</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="container sales-container">
+    <div class="title">Sales By F&B Category</div>
+    <div class="custom-tick-container center-text center-items specified-width background">
+        <label>
+            <input type="radio" name="sales_by_fnb_category" value="annually" checked>
+            <div class="custom-tick-text">Anually</div>
+        </label>
+        <label>
+            <input type="radio" name="sales_by_fnb_category" value="quarterly">
+            <div class="custom-tick-text">Quarterly</div>
+        </label>
+    </div>
+
+    <table class="annually-table">
+        <thead>
+            <tr>
+                <th></th>
+                @foreach (var year in Model.Years)
+                {
+                    <th>@year</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var report in Model.SalesFnbCategoryAnnually)
+            {
+                <tr>
+                    <th>@report.Key</th>
+                    @foreach (var amount in report.Value)
+                    {
+                        <td>@FormatService.ToRMFormat(amount, true, true, true)</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <table class="quarterly-table">
+        <thead>
+            <tr>
+                <th></th>
+                @foreach (var quarter in Model.Quarters)
+                {
+                    <th>@quarter</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var report in Model.SalesFnbCategoryQuarterly)
+            {
+                <tr>
+                    <th>@report.Key</th>
+                    @foreach (var amount in report.Value)
+                    {
+                        <td>@FormatService.ToRMFormat(amount, true, true, true)</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

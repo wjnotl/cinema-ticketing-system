@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="/css/pager.css">
+    <link rel="stylesheet" href="/css/app.css" asp-append-version="true">
+    <script>
+        const FALLBACK_IMAGE = "/img/no_image.png";
+        document.addEventListener("error", function (e) {
+            if (e.target.tagName && e.target.tagName.toLowerCase() === "img") {
+                if (e.target.src !== location.origin + FALLBACK_IMAGE) {
+                    e.target.src = FALLBACK_IMAGE;
+                }
+            }
+        }, true);
+    </script>
+
+    @RenderSection("head", false)
+</head>
+
+<body>
+    @if (ViewBag.AccountType == null || ViewBag.AccountType == "Customer")
+    {
+        <partial name="_Header" />
+    }
+    else
+    {
+        <partial name="_AdminHeader" />
+    }
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer>
+        <div id="footer-container" class="container">
+            <div id="footer-copyright">Copyright © @DateTime.Now.Year Superme Malaysia Sdn Bhd [201253407298
+                (980818-X)]. All Rights Reserved
+            </div>
+            <div id="footer-address">Lot 2, Jalan Mohd Salley, Persiaran Sukan, Seksyen 13, 40100 Shah Alam, Selangor
+                Darul Ehsan</div>
+            <div id="footer-links">
+                <a href="/Info/About" target="_blank">About Us</a>
+                <a href="/Info/Privacy" target="_blank">Privacy Policy</a>
+                <a href="/Info/Contact" target="_blank">Contact Us</a>
+            </div>
+            <div id="footer-social-media">
+                <a style="background-image: url('/img/facebook.svg'); " href="
+                    https://www.facebook.com/malaysia_supershow" target="_blank"></a>
+                <a style="background-image: url('/img/instagram.svg'); "
+                    href=" https://www.instagram.com/malaysia_supershow" target="_blank"></a>
+                <a style="background-image: url('/img/youtube.svg'); " href="
+                    https://www.youtube.com/@@malaysia_supershow" target="_blank"></a>
+            </div>
+        </div>
+    </footer>
+
+    <div class="toast-container" data-toast-message="@TempData["Message"]"></div>
+
+    <div id="confirmation-popup" class="overlay">
+        <div class="content">
+            <div class="title"></div>
+            <div class="button-group-inline">
+                <button id="confirmation-popup-confirm" data-button="green"></button>
+                <button id="confirmation-popup-cancel" data-button="red"></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tooltip" class="show">abc</div>
+
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.unobtrusive-ajax.js"></script>
+    <script src="/js/jquery.validate.min.js"></script>
+    <script src="/js/jquery.validate.unobtrusive.min.js"></script>
+    <script src="/js/signalr.min.js"></script>
+    <script src="/js/app.js" asp-append-version="true"></script>
+    @RenderSection("foot", false)
+</body>
+
+</html>

@@ -1,0 +1,549 @@
+@model MovieInfoVM
+
+@{
+    ViewBag.Title = "Movie Info | Supershow";
+	var ratingValue = Model.AverageRating;
+}
+
+@section head {
+	<style>
+		#movie-title {
+			font-family: var(--secondary-font-family);
+			display: flex;
+			gap: 10px;
+			align-items: center;
+		}
+
+		#movie-classification {
+			width: 40px;
+			height: 40px;
+		}
+
+		#movie-info-content {
+			gap: 40px;
+			font-size: 18px;
+		}
+
+		#movie-info-content>div {
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+		}
+
+		#movie-poster {
+			width: 300px;
+			aspect-ratio: 2 / 3;
+			border-radius: 10px;
+		}
+
+		#movie-info-header {
+			display: flex;
+			gap: 20px;
+			align-items: center;
+		}
+
+		#movie-info-header>div {
+			display: flex;
+			align-items: center;
+		}
+
+		.rating-value {
+			margin-top: 3px;
+			margin-right: 5px;
+		}
+
+		.rating-stars-container {
+			display: flex;
+			width: max-content;
+		}
+
+		.rating-stars-container .empty-star {
+			background-image: url("/img/star_empty.png");
+			background-size: contain;
+			background-position: center;
+			background-repeat: no-repeat;
+			width: 16px;
+			height: 16px;
+			margin: 0 3px;
+		}
+
+		.rating-stars-container .star-setter {
+			overflow: hidden;
+			height: 100%;
+		}
+
+		.rating-stars-container .empty-star:nth-child(1) .star-setter {
+			width: calc(
+					@ratingValue
+					* 100%);
+		}
+
+		.rating-stars-container .empty-star:nth-child(2) .star-setter {
+			width: calc((
+						@ratingValue
+						* 100%) - (1 * 100%));
+		}
+
+		.rating-stars-container .empty-star:nth-child(3) .star-setter {
+			width: calc((
+						@ratingValue
+						* 100%) - (2 * 100%));
+		}
+
+		.rating-stars-container .empty-star:nth-child(4) .star-setter {
+			width: calc((
+						@ratingValue
+						* 100%) - (3 * 100%));
+		}
+
+		.rating-stars-container .empty-star:nth-child(5) .star-setter {
+			width: calc((
+						@ratingValue
+						* 100%) - (4 * 100%));
+		}
+
+		.rating-stars-container[data-rating="0"] .empty-star:nth-child(1) .star-setter {
+			width: 0%;
+		}
+
+		.rating-stars-container[data-rating="1"] .empty-star:nth-child(1) .star-setter,
+		.rating-stars-container[data-rating="2"] .empty-star:nth-child(1) .star-setter,
+		.rating-stars-container[data-rating="3"] .empty-star:nth-child(1) .star-setter,
+		.rating-stars-container[data-rating="4"] .empty-star:nth-child(1) .star-setter,
+		.rating-stars-container[data-rating="5"] .empty-star:nth-child(1) .star-setter {
+			width: 100%;
+		}
+
+		.rating-stars-container[data-rating="0"] .empty-star:nth-child(2) .star-setter,
+		.rating-stars-container[data-rating="1"] .empty-star:nth-child(2) .star-setter {
+			width: 0%;
+		}
+
+		.rating-stars-container[data-rating="2"] .empty-star:nth-child(2) .star-setter,
+		.rating-stars-container[data-rating="3"] .empty-star:nth-child(2) .star-setter,
+		.rating-stars-container[data-rating="4"] .empty-star:nth-child(2) .star-setter,
+		.rating-stars-container[data-rating="5"] .empty-star:nth-child(2) .star-setter {
+			width: 100%;
+		}
+
+		.rating-stars-container[data-rating="0"] .empty-star:nth-child(3) .star-setter,
+		.rating-stars-container[data-rating="1"] .empty-star:nth-child(3) .star-setter,
+		.rating-stars-container[data-rating="2"] .empty-star:nth-child(3) .star-setter {
+			width: 0%;
+		}
+
+		.rating-stars-container[data-rating="3"] .empty-star:nth-child(3) .star-setter,
+		.rating-stars-container[data-rating="4"] .empty-star:nth-child(3) .star-setter,
+		.rating-stars-container[data-rating="5"] .empty-star:nth-child(3) .star-setter {
+			width: 100%;
+		}
+
+		.rating-stars-container[data-rating="0"] .empty-star:nth-child(4) .star-setter,
+		.rating-stars-container[data-rating="1"] .empty-star:nth-child(4) .star-setter,
+		.rating-stars-container[data-rating="2"] .empty-star:nth-child(4) .star-setter,
+		.rating-stars-container[data-rating="3"] .empty-star:nth-child(4) .star-setter {
+			width: 0%;
+		}
+
+		.rating-stars-container[data-rating="4"] .empty-star:nth-child(4) .star-setter,
+		.rating-stars-container[data-rating="5"] .empty-star:nth-child(4) .star-setter {
+			width: 100%;
+		}
+
+		.rating-stars-container[data-rating="0"] .empty-star:nth-child(5) .star-setter,
+		.rating-stars-container[data-rating="1"] .empty-star:nth-child(5) .star-setter,
+		.rating-stars-container[data-rating="2"] .empty-star:nth-child(5) .star-setter,
+		.rating-stars-container[data-rating="3"] .empty-star:nth-child(5) .star-setter,
+		.rating-stars-container[data-rating="4"] .empty-star:nth-child(5) .star-setter {
+			width: 0%;
+		}
+
+		.rating-stars-container[data-rating="5"] .empty-star:nth-child(5) .star-setter {
+			width: 100%;
+		}
+
+		.rating-stars-container .star {
+			background-image: url("/img/star.png");
+			background-size: contain;
+			background-position: center;
+			background-repeat: no-repeat;
+			width: 16px;
+			height: 16px;
+		}
+
+		.movie-info-container h3 {
+			margin: 5px 0;
+		}
+
+		.movie-info-container p {
+			margin: 0;
+			white-space: pre-line;
+		}
+
+		#movie-review-container {
+			width: calc(100% - var(--content-width-margin) * 2 - 24px * 2);
+			max-width: unset;
+			margin-top: 40px;
+		}
+
+		#movie-rating-header {
+			display: flex;
+			align-items: center;
+			gap: 20px;
+			font-size: 18px;
+			margin-bottom: 30px;
+		}
+
+		#movie-rating-header>div {
+			display: flex;
+			align-items: center;
+		}
+
+		#own-review-container {
+			display: flex;
+			gap: 15px;
+			align-items: center;
+		}
+
+		#own-review-container .form-group {
+			margin: 0;
+		}
+
+		.pfp-image {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			object-fit: cover;
+		}
+
+		#own-review-input-container {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+		}
+
+		#own-review-input-container .empty-star {
+			cursor: pointer;
+		}
+
+		#own-review-input-container:has(input[readonly]) {
+			pointer-events: none;
+		}
+
+		#own-review-input-container:has(.empty-star:nth-child(1):hover) .empty-star:nth-child(1) .star-setter {
+			width: 100%;
+			filter: brightness(0.8);
+		}
+
+		#own-review-input-container:has(.empty-star:nth-child(2):hover) .empty-star:nth-child(1) .star-setter,
+		#own-review-input-container:has(.empty-star:nth-child(2):hover) .empty-star:nth-child(2) .star-setter {
+			width: 100%;
+			filter: brightness(0.8);
+		}
+
+		#own-review-input-container:has(.empty-star:nth-child(3):hover) .empty-star:nth-child(1) .star-setter,
+		#own-review-input-container:has(.empty-star:nth-child(3):hover) .empty-star:nth-child(2) .star-setter,
+		#own-review-input-container:has(.empty-star:nth-child(3):hover) .empty-star:nth-child(3) .star-setter {
+			width: 100%;
+			filter: brightness(0.8);
+		}
+
+		#own-review-input-container:has(.empty-star:nth-child(4):hover) .empty-star:nth-child(1) .star-setter,
+		#own-review-input-container:has(.empty-star:nth-child(4):hover) .empty-star:nth-child(2) .star-setter,
+		#own-review-input-container:has(.empty-star:nth-child(4):hover) .empty-star:nth-child(3) .star-setter,
+		#own-review-input-container:has(.empty-star:nth-child(4):hover) .empty-star:nth-child(4) .star-setter {
+			width: 100%;
+			filter: brightness(0.8);
+		}
+
+		#own-review-input-container:has(.empty-star:nth-child(5):hover) .empty-star:nth-child(1) .star-setter,
+		#own-review-input-container:has(.empty-star:nth-child(5):hover) .empty-star:nth-child(2) .star-setter,
+		#own-review-input-container:has(.empty-star:nth-child(5):hover) .empty-star:nth-child(3) .star-setter,
+		#own-review-input-container:has(.empty-star:nth-child(5):hover) .empty-star:nth-child(4) .star-setter,
+		#own-review-input-container:has(.empty-star:nth-child(5):hover) .empty-star:nth-child(5) .star-setter {
+			width: 100%;
+			filter: brightness(0.8);
+		}
+
+		#send-review-button {
+			display: none;
+			width: 30px;
+			height: 30px;
+			background-color: transparent;
+			background-image: url("/img/send.png");
+			background-size: 80%;
+			background-position: center;
+			background-repeat: no-repeat;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		#send-review-button.show {
+			display: block;
+			pointer-events: all;
+		}
+
+		#send-review-button:hover {
+			filter: brightness(0.5);
+		}
+
+		#delete-review-button {
+			display: none;
+			width: 30px;
+			height: 30px;
+			background-color: transparent;
+			background-image: url("/img/delete.png");
+			background-size: contain;
+			background-position: center;
+			background-repeat: no-repeat;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		#delete-review-button.show {
+			display: block;
+			pointer-events: all;
+		}
+
+		#delete-review-button:hover {
+			background-image: url("/img/delete_hover.png");
+		}
+
+		.review-container {
+			display: flex;
+			gap: 15px;
+			margin-top: 30px;
+		}
+
+		.review-container .user-info {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+			gap: 5px;
+			overflow: hidden;
+		}
+
+		.review-container .name {
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+		}
+
+		.review-container .rating-stars-container .empty-star,
+		.review-container .rating-stars-container .star {
+			width: 12px;
+			height: 12px;
+		}
+
+		.review-container .rating-stars-container .empty-star {
+			margin: 0 2px;
+		}
+
+		.review-container .log-entry {
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			color: var(--tertiary-color);
+			margin-bottom: 5px;
+			font-size: 14px;
+		}
+
+		.review-container .comment {
+			text-align: justify;
+			margin: 0;
+		}
+
+		#no-review {
+			margin-top: 30px;
+		}
+
+		#movie-review-container:has(.review-container) #no-review {
+			display: none;
+		}
+	</style>
+}
+
+<div class="container">
+	<div id="movie-title" class="title">
+		<img data-tooltip="Classification: @Model.Movie.Classification.Name" id="movie-classification"
+			src="/img/classification/@(Model.Movie.Classification.Name).svg">
+		<span>@Model.Movie.Title</span>
+	</div>
+	<div id="movie-info-content" data-column-container="2">
+		<div>
+			<img id="movie-poster" src="/uploads/poster/@Model.Movie.Poster">
+			@if (!string.IsNullOrEmpty(Model.Movie.Trailer))
+			{
+				<a href="@Model.Movie.Trailer" target="_blank" data-button="blue">Watch Trailer</a>
+			}
+			<a href="/Movie/Showtimes/@Model.Movie.Slug" data-button="yellow">Buy Tickets</a>
+		</div>
+		<div>
+			<div id="movie-info-header">
+				@if (Model.TotalReviews > 0)
+				{
+					<div>
+						<div class="rating-value">@Math.Round(ratingValue, 1)</div>
+						<div class="rating-stars-container">
+							<div class="empty-star">
+								<div class="star-setter">
+									<div class="star"></div>
+								</div>
+							</div>
+							<div class="empty-star">
+								<div class="star-setter">
+									<div class="star"></div>
+								</div>
+							</div>
+							<div class="empty-star">
+								<div class="star-setter">
+									<div class="star"></div>
+								</div>
+							</div>
+							<div class="empty-star">
+								<div class="star-setter">
+									<div class="star"></div>
+								</div>
+							</div>
+							<div class="empty-star">
+								<div class="star-setter">
+									<div class="star"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<span>|</span>
+				}
+				<span>@Model.TotalReviews Review</span>
+				<span>|</span>
+				<span>@Model.TotalTicketsSold Sold</span>
+			</div>
+			<div class="movie-info-container">
+				<h3>Release Date</h3>
+				<p>@FormatService.ToDateTimeFormat(Model.Movie.ReleaseDate, "d MMMM yyyy")</p>
+			</div>
+			<div class="movie-info-container">
+				<h3>Director</h3>
+				<p>@Model.Movie.Director</p>
+			</div>
+			<div class="movie-info-container">
+				<h3>Cast</h3>
+				<p>@Model.Movie.Cast</p>
+			</div>
+			<div class="movie-info-container">
+				<h3>Genre</h3>
+				<p>@string.Join(", ", Model.Movie.Genres.Select(g => g.Name))</p>
+			</div>
+			<div class="movie-info-container">
+				<h3>Spoken Language</h3>
+				<p>@Model.Movie.SpokenLanguage.Name</p>
+			</div>
+			<div class="movie-info-container">
+				<h3>Subtitle</h3>
+				<p>@string.Join(", ", Model.Movie.Subtitles.Select(s => s.Name))</p>
+			</div>
+			<div class="movie-info-container">
+				<h3>Running Time</h3>
+				<p>@FormatService.ToDurationFormat(Model.Movie.Duration)</p>
+			</div>
+			<div class="movie-info-container">
+				<h3>Synopsis</h3>
+				<p>@Model.Movie.Synopsis</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="movie-review-container" class="container info-container">
+	<div class="title">Reviews</div>
+	<div id="movie-rating-header">
+		<div>
+			<div class="rating-value">@Math.Round(ratingValue, 1)</div>
+			<div class="rating-stars-container">
+				<div class="empty-star">
+					<div class="star-setter">
+						<div class="star"></div>
+					</div>
+				</div>
+				<div class="empty-star">
+					<div class="star-setter">
+						<div class="star"></div>
+					</div>
+				</div>
+				<div class="empty-star">
+					<div class="star-setter">
+						<div class="star"></div>
+					</div>
+				</div>
+				<div class="empty-star">
+					<div class="star-setter">
+						<div class="star"></div>
+					</div>
+				</div>
+				<div class="empty-star">
+					<div class="star-setter">
+						<div class="star"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<form method="post" class="custom-tick-container center-text center-items specified-width background"
+			asp-action="Info" method="get"
+			data-ajax="true"
+			data-ajax-update="#review-list-container"
+		>
+			<label>
+				<input data-auto-submit type="radio" asp-for="FilterRating" value="all">
+				<div class="custom-tick-text">All</div>
+			</label>
+			<label>
+				<input data-auto-submit type="radio" asp-for="FilterRating" value="5">
+				<div class="custom-tick-text">5 Star</div>
+			</label>
+			<label>
+				<input data-auto-submit type="radio" asp-for="FilterRating" value="4">
+				<div class="custom-tick-text">4 Star</div>
+			</label>
+			<label>
+				<input data-auto-submit type="radio" asp-for="FilterRating" value="3">
+				<div class="custom-tick-text">3 Star</div>
+			</label>
+			<label>
+				<input data-auto-submit type="radio" asp-for="FilterRating" value="2">
+				<div class="custom-tick-text">2 Star</div>
+			</label>
+			<label>
+				<input data-auto-submit type="radio" asp-for="FilterRating" value="1">
+				<div class="custom-tick-text">1 Star</div>
+			</label>
+		</form>
+	</div>
+
+	<form id="own-review-container" action="/Movie/AddReview?id=@Model.Movie.Id" method="post"
+		data-ajax="true"
+		data-ajax-update="#own-review-container"
+	>
+		<partial name="_AddReview" model="Model.NewReview"/>
+	</form>
+
+	<div id="no-review">No reviews found</div>
+
+	<div id="review-list-container">
+		<partial name="_Reviews" model="Model.Reviews" />
+	</div>
+</div>
+
+@section foot {
+	<script>
+		const movieId = @Model.Movie.Id;
+
+		$(document).on("click", "#own-review-container .empty-star", function () {
+			const rating = $(this).index() + 1
+			$(this).closest(".rating-stars-container").attr("data-rating", rating)
+			$("#own-review-rating-input").val(rating)
+		})
+
+		$(document).on("")
+	</script>
+}

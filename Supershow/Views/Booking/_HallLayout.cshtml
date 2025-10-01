@@ -1,0 +1,44 @@
+@model Booking
+
+@for (int i = 0; i < Model.Showtime.Hall.TotalRows; i++)
+{
+    var rowAlphabet = (char)('A' + i);
+
+    <div class="seat-row">
+        <div class="side-alphabet">@rowAlphabet</div>
+        @for (int j = 0; j < Model.Showtime.Hall.TotalColumns; j++)
+        {
+            var seat = Model.Showtime.Hall.Seats.FirstOrDefault(s => s.Row == i && s.ColumnsList.Contains(j) && !s.IsDeleted);
+
+            if (seat == null)
+            {
+                <button class="seat"></button>
+                continue;
+            }
+
+            if (seat.SeatType.ColumnSpan > 1 && seat.ColumnsList[0] != j)
+            {
+                continue;
+            }
+
+            var className = "seat";
+            className += seat.SeatType.ColumnSpan == 1 ? " single" : " twin";
+
+            var seatBooking = Model.Showtime.Bookings.Where(b => b.Status != "Canceled").FirstOrDefault(b => b.Tickets.Any(t => t.SeatId == seat.Id));
+            if (seatBooking != null)
+            {
+                if (seatBooking.Id != Model.Id)
+                {
+                    className += seatBooking.Status == "Confirmed" ? " sold" : " unavailable";
+                }
+                else
+                {
+                    className += " selected";
+                }
+            }
+
+            <button data-seat-id="@seat.Id" data-tooltip="@seat.Name" class="@className"></button>
+        }
+        <div class="side-alphabet">@rowAlphabet</div>
+    </div>
+}

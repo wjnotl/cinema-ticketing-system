@@ -1,0 +1,20 @@
+@model (List<string> steps, int currentStep)
+
+<div class="steps-progress-container">
+    @for (var i = 0; i < Model.steps.Count; ++i)
+    {
+        var step = Model.steps[i];
+        var completed = Model.currentStep > i + 1;
+        var active = Model.currentStep == i + 1;
+
+        <div class="circle @(completed ? "completed" : "") @(active ? "active" : "")">
+            <div class="step-number">@(completed ? "✓" : i + 1)</div>
+            <div class="step-label">@step</div>
+        </div>
+
+        if (i != Model.steps.Count - 1)
+        {
+            <div class="line"></div>
+        }
+    }
+</div>

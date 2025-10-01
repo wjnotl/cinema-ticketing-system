@@ -1,0 +1,82 @@
+@model ManageFnbItemVM
+
+@if (Model.Results.Count <= 0) 
+{
+    <partial name="_NoResults" model="@("No results found")" />
+}
+else 
+{
+    <table>
+        <thead>
+            <tr>
+                @foreach (var f in ViewBag.Fields) 
+                {
+                    var dir = "asc";
+                    if (f == Model.Sort)
+                    {
+                        dir = Model.Dir == "desc" ? "asc" : "desc";
+                    }
+
+                    <th class="@Model.Dir @(f == Model.Sort ? "selected" : "")">
+                        <a href="@Url.Action("Manage", new {
+                            Dir = dir,
+                            Sort = f,
+                            Page = Model.Page,
+                            Search = Model.Search,
+                            SearchOption = Model.SearchOption,
+                            Categories = Model.Categories,
+                            MinVariantsCount = Model.MinVariantsCount,
+                            MaxVariantsCount = Model.MaxVariantsCount,
+                            CreationFrom = Model.CreationFrom?.ToString(),
+                            CreationTo = Model.CreationTo?.ToString()
+                        })"
+                        data-ajax="true"
+                        data-ajax-update="#manage-results">@f</a>
+                    </th>
+                }
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var f in Model.Results)
+            {
+                <tr>
+                    <td>@f.Id</td>
+                    <td>@f.Name</td>
+                    <td>@f.FnbCategory.Name</td>
+                    <td>@f.FnbItemVariants.Count(v => !v.IsDeleted)</td>
+                    <td>@FormatService.ToDateTimeFormat(f.CreatedAt, "dd MMM yyyy")</td>
+                    <td>
+                        <div class="button-group-inline">
+                            <a href="@Url.Action("Edit", new {id = f.Id})" data-button="yellow">Edit</a>
+                            <a 
+                                data-ajax-url="@Url.Action("Delete", new { id = f.Id })" data-button="red"
+                                data-ajax="true"
+                                data-ajax-method="POST"
+                                data-ajax-failure="defaultOnFailure"
+                                data-ajax-success="reloadPage()"
+                                data-ajax-confirm="Are you sure you want to delete this item?"
+                            >Delete</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>    
+
+    @Html.PagedListPager(Model.Results,
+        page => Url.Action("Manage", new {
+            Dir = Model.Dir,
+            Sort = Model.Sort,
+            Page = page,
+            Search = Model.Search,
+            SearchOption = Model.SearchOption,
+            Categories = Model.Categories,
+            MinVariantsCount = Model.MinVariantsCount,
+            MaxVariantsCount = Model.MaxVariantsCount,
+            CreationFrom = Model.CreationFrom?.ToString(),
+            CreationTo = Model.CreationTo?.ToString()
+        }),
+        PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(ManagePageService.GetPagedOption(), ManagePageService.GetAjaxOption())
+    )
+}

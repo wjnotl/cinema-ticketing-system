@@ -1,0 +1,136 @@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
+<header>
+    <div id="header-container" class="container">
+        <a id="header-home-button" href="/">
+            <img src="/img/supershow.png">
+        </a>
+
+        @if (ViewBag.AccountType == "Super Admin" || ViewBag.AccountType == "Sales Analyst")
+        {
+            <a href="/Report" class="admin-header-link @(currentController == "Report" ? "selected" : "")">
+                <img class="unselected-icon" src="/img/header_icon/sales_report.png">
+                <img class="selected-icon" src="/img/header_icon/sales_report_selected.png">
+                <span>Sales Report</span>
+            </a>
+        }
+
+        @if (ViewBag.AccountType == "Super Admin" || ViewBag.AccountType == "Support Staff")
+        {
+            <a href="/Customer/Manage" class="admin-header-link @(currentController == "Customer" ? "selected" : "")">
+                <img class="unselected-icon" src="/img/header_icon/manage_customer.png" style="transform: scale(1.2)">
+                <img class="selected-icon" src="/img/header_icon/manage_customer_selected.png"
+                    style="transform: scale(1.2)">
+                <span>Customers</span>
+            </a>
+        }
+
+        @if (ViewBag.AccountType == "Super Admin" || ViewBag.AccountType == "HR Manager")
+        {
+            <a href="/Admin/Manage" class="admin-header-link @(currentController == "Admin" ? "selected" : "")">
+                <img class="unselected-icon" src="/img/header_icon/manage_admin.png" style="transform: scale(1.4)">
+                <img class="selected-icon" src="/img/header_icon/manage_admin_selected.png" style="transform: scale(1.4)">
+                <span>Admins</span>
+            </a>
+        }
+
+        @if (ViewBag.AccountType == "Super Admin" || ViewBag.AccountType == "Operation Manager" ||
+                ViewBag.AccountType == "Cinema Manager")
+        {
+            <a href="/Cinema/Manage" class="admin-header-link @(currentController == "Cinema" || currentController == "Hall" ? "selected" : "")">
+                <img class="unselected-icon" src="/img/header_icon/manage_cinema.png" style="transform: scale(1.2)">
+                <img class="selected-icon" src="/img/header_icon/manage_cinema_selected.png" style="transform: scale(1.2)">
+                <span>Cinemas</span>
+            </a>
+        }
+
+        @if (ViewBag.AccountType == "Super Admin" || ViewBag.AccountType == "Movie Manager")
+        {
+            <a href="/Movie/Manage" class="admin-header-link @(currentController == "Movie" ? "selected" : "")">
+                <img class="unselected-icon" src="/img/header_icon/manage_movie.png" style="transform: scale(1.2)">
+                <img class="selected-icon" src="/img/header_icon/manage_movie_selected.png" style="transform: scale(1.2)">
+                <span>Movies</span>
+            </a>
+        }
+
+        @if (ViewBag.AccountType == "Super Admin" || ViewBag.AccountType == "Operation Manager" ||
+                ViewBag.AccountType == "Cinema Manager")
+        {
+            <a href="/Showtime/Manage" class="admin-header-link @(currentController == "Showtime" ? "selected" : "")">
+                <img class="unselected-icon" src="/img/header_icon/manage_showtime.png" style="transform: scale(0.95)">
+                <img class="selected-icon" src="/img/header_icon/manage_showtime_selected.png"
+                    style="transform: scale(0.95)">
+                <span>Showtimes</span>
+            </a>
+        }
+
+        @if (ViewBag.AccountType == "Super Admin" || ViewBag.AccountType == "F&B Manager")
+        {
+            <a href="/Fnb/Manage" class="admin-header-link @(currentController == "Fnb" || currentController == "FnbVariant" ? "selected" : "")">
+                <img class="unselected-icon" src="/img/header_icon/manage_fnb_item.png" style="transform: scale(1.5)">
+                <img class="selected-icon" src="/img/header_icon/manage_fnb_item_selected.png"
+                    style="transform: scale(1.5)">
+                <span>F&B Items</span>
+            </a>
+        }
+
+        @if (ViewBag.AccountType == "Super Admin" || ViewBag.AccountType == "Cinema Manager" ||
+                ViewBag.AccountType == "Inventory Manager")
+        {
+            <a href="/FnbInventory/Manage" class="admin-header-link @(currentController == "FnbInventory" ? "selected" : "")">
+                <img class="unselected-icon" src="/img/header_icon/manage_inventory.png">
+                <img class="selected-icon" src="/img/header_icon/manage_inventory_selected.png">
+                <span>F&B Inventory</span>
+            </a>
+        }
+
+        @if (ViewBag.AccountType == "Super Admin" || ViewBag.AccountType == "Support Staff" ||
+                ViewBag.AccountType == "Cinema Manager" || ViewBag.AccountType == "Booking Manager")
+        {
+            <a href="/Booking/Manage" class="admin-header-link @(currentController == "Booking" ? "selected" : "")">
+                <img class="unselected-icon" src="/img/header_icon/manage_booking.png">
+                <img class="selected-icon" src="/img/header_icon/manage_booking_selected.png">
+                <span>Bookings</span>
+            </a>
+        }
+
+        @if (ViewBag.AccountType == "Super Admin" || ViewBag.AccountType == "Support Staff" ||
+                ViewBag.AccountType == "Cinema Manager" || ViewBag.AccountType == "F&B Order Manager")
+        {
+            <a href="/FnbOrder/Manage" class="admin-header-link @(currentController == "FnbOrder" ? "selected" : "")">
+                <img class="unselected-icon" src="/img/header_icon/manage_fnb_order.png">
+                <img class="selected-icon" src="/img/header_icon/manage_fnb_order_selected.png">
+                <span>F&B Orders</span>
+            </a>
+        }
+
+        @if (ViewBag.AccountType == "Super Admin" || ViewBag.AccountType == "Operation Manager")
+        {
+            <a href="/Experience/Manage" class="admin-header-link @(currentController == "Experience" ? "selected" : "")">
+                <img class="unselected-icon" src="/img/header_icon/manage_experience.png">
+                <img class="selected-icon" src="/img/header_icon/manage_experience_selected.png">
+                <span>Experiences</span>
+            </a>
+        }
+
+        @if (ViewBag.AccountType == "Super Admin" || ViewBag.AccountType == "Operation Manager")
+        {
+            <a href="/SeatType/Manage" class="admin-header-link @(currentController == "SeatType" ? "selected" : "")">
+                <img class="unselected-icon" src="/img/header_icon/manage_seat_type.png">
+                <img class="selected-icon" src="/img/header_icon/manage_seat_type_selected.png">
+                <span>Seat Types</span>
+            </a>
+        }
+
+        <div class="header-button" id="header-account-button">
+            <img id="header-account-image" src="@ViewBag.AccountImageUrl">
+            <div id="header-account-dropdown">
+                <a href="/Account">Account</a>
+                <a href="/Account/Device">Device</a>
+                <div data-link id="logout-button">Logout</div>
+            </div>
+        </div>
+    </div>
+</header>

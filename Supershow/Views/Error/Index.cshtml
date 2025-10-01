@@ -1,0 +1,46 @@
+@{
+    ViewBag.Title = $"Error {ViewBag.StatusCode} | Supershow";
+}
+
+@section head {
+    <style>
+        #error-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        #error-container * {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            margin: auto;
+            margin-top: -50px;
+        }
+
+        #error-status-code {
+            font-size: 300px;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        #error-message {
+            font-size: 50px;
+        }
+
+        #error-description {
+            color: var(--secondary-color);
+            margin-top: 70px;
+        }
+
+        #error-back {
+            margin-top: 120px;
+        }
+    </style>
+}
+
+<div id="error-container">
+    <h1 id="error-status-code">@ViewBag.StatusCode</h1>
+    <div id="error-message">@ViewBag.Message</div>
+    <h2 id="error-description">@ViewBag.Description</h2>
+    <a href="/" id="error-back" data-button="yellow">Back to Homepage</a>
+</div>

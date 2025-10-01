@@ -1,0 +1,37 @@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
+<header>
+    <div id="header-container" class="container">
+        <a id="header-home-button" href="/">
+            <img src="/img/supershow.png">
+        </a>
+        <a href="/Movie" class="header-link @(currentController == "Movie" ? "selected" : "")"
+            data-selectable-title>Movies</a>
+        <a href="/Cinema" class="header-link @(currentController == "Cinema" ? "selected" : "")"
+            data-selectable-title>Cinemas</a>
+        <a href="/Experience" class="header-link @(currentController == "Experience" ? "selected" : "")"
+            data-selectable-title>Experiences</a>
+        <a href="/Fnb" class="header-link @(currentController == "Fnb" ? "selected" : "")" data-selectable-title>F &
+            B</a>
+        <div class="header-button" id="header-account-button">
+            <img id="header-account-image" src="@ViewBag.AccountImageUrl">
+            <div id="header-account-dropdown">
+                @if (ViewBag.Authenticated)
+                {
+                    <a href="/Account">Account</a>
+                    <a href="/Account/Device">Device</a>
+                    <a href="/Account/History">History</a>
+                    <a href="/Wallet">Wallet</a>
+                    <div data-link id="logout-button">Logout</div>
+                }
+                else
+                {
+                    <a href="/Auth/Login">Login</a>
+                    <a href="/Auth/Register">Register</a>
+                }
+            </div>
+        </div>
+    </div>
+</header>

@@ -1,0 +1,218 @@
+@model EditHallLayoutVM
+
+@{
+    ViewBag.Title = "Edit Hall Layout | Supershow";
+}
+
+@section head {
+    <style>
+        .custom-tick-container {
+            margin-bottom: 50px;
+        }
+
+        .custom-tick-container img {
+            height: 25px;
+        }
+
+        .custom-tick-container img.selected,
+        .custom-tick-container label:has(input[type="radio"]:checked) img:not(.selected) {
+            display: none;
+        }
+
+        .custom-tick-container label:has(input[type="radio"]:checked) img.selected {
+            display: block;
+        }
+
+        .custom-tick-container label span {
+            font-size: 14px;
+        }
+    </style>
+}
+
+<div class="container custom-tick-container center-text center-items background">
+    <label>
+        <img src="/img/seat/default.png" style="scale: 1.2;">
+        <img src="/img/seat/default_selected.png" style="scale: 1.2;" class="selected">
+        <span>Default</span>
+        <input type="radio" name="tool" value="default" checked>
+    </label>
+
+    <label>
+        <img src="/img/seat/add_row.png">
+        <img src="/img/seat/add_row_selected.png" class="selected">
+        <span>Add Row</span>
+        <input type="radio" name="tool" value="add_row">
+    </label>
+
+    <label>
+        <img src="/img/seat/add_column.png" style="scale: 1.2; margin-top: -5px;">
+        <img src="/img/seat/add_column_selected.png" style="scale: 1.2; margin-top: -5px;" class="selected">
+        <span>Add Column</span>
+        <input type="radio" name="tool" value="add_column">
+    </label>
+
+    <label>
+        <img src="/img/seat/delete_row.png">
+        <img src="/img/seat/delete_row_selected.png" class="selected">
+        <span>Delete row</span>
+        <input type="radio" name="tool" value="delete_row">
+    </label>
+
+    <label>
+        <img src="/img/seat/delete_column.png" style="scale: 1.2; margin-top: -5px;">
+        <img src="/img/seat/delete_column_selected.png" style="scale: 1.2; margin-top: -5px;" class="selected">
+        <span>Delete Column</span>
+        <input type="radio" name="tool" value="delete_column">
+    </label>
+
+    @if (Model.AvailableSeatTypes.Any(st => st.ColumnSpan == 1))
+    {
+        var seatType = Model.AvailableSeatTypes.First(st => st.ColumnSpan == 1);
+
+        <label>
+            <img src="/img/seat/single.png">
+            <img src="/img/seat/single_unavailable.png" class="selected">
+            <span>@seatType.Name</span>
+            <input data-seat-single type="radio" name="tool" value="@seatType.Id">
+        </label>
+    }
+
+    @if (Model.AvailableSeatTypes.Any(st => st.ColumnSpan == 2))
+    {
+        var seatType = Model.AvailableSeatTypes.First(st => st.ColumnSpan == 2);
+
+        <label>
+            <img src="/img/seat/twin.png">
+            <img src="/img/seat/twin_unavailable.png" class="selected">
+            <span>@seatType.Name</span>
+            <input data-seat-twin type="radio" name="tool" value="@seatType.Id">
+        </label>
+    }
+
+    <label>
+        <img src="/img/seat/delete_seat.png" style="scale: 1.2;">
+        <img src="/img/seat/delete_seat_selected.png" style="scale: 1.2;" class="selected">
+        <span>Delete Seat</span>
+        <input type="radio" name="tool" value="delete_seat">
+    </label>
+</div>
+
+<div class="container" data-center-items="row">
+    <img id="screen-image" src="/img/screen.png">
+</div>
+
+<form data-ajax="true" data-ajax-update="#hall-layout-container" data-ajax-failure="defaultOnFailure"
+    class="container horizontal-center" data-center-items="column" method="post">
+
+    <input id="input-add-seat-type-id" asp-for="AddSeatTypeId" hidden>
+    <input id="input-add-seat-row" asp-for="AddSeatRow" hidden>
+    <input id="input-add-seat-column" asp-for="AddSeatColumn" hidden>
+    <input id="input-delete-seat-id" asp-for="DeleteSeatId" hidden>
+    <input id="input-add-row" asp-for="AddRow" hidden>
+    <input id="input-add-column" asp-for="AddColumn" hidden>
+    <input id="input-delete-row" asp-for="DeleteRow" hidden>
+    <input id="input-delete-column" asp-for="DeleteColumn" hidden>
+
+    <div id="hall-layout-container" class="seat-selection-container">
+        <partial name="_HallLayout" model="Model.Hall" />
+    </div>
+</form>
+
+@section foot {
+    <script>
+        var addSeatType = null
+
+        changeTool()
+        $("input[name='tool']").change(changeTool)
+
+        function changeTool() {
+            var hallLayoutContainer = $("#hall-layout-container")
+            var tool = $("input[name='tool']:checked")
+            if (!tool.length || !hallLayoutContainer.length) return;
+
+            addSeatType = null
+
+            var toolValue = tool.val();
+            if (Array.from(["default", "add_row", "add_column", "delete_row", "delete_column", "delete_seat"]).includes(toolValue)) {
+                hallLayoutContainer.attr("data-tool-value", toolValue)
+            } else if (tool.is("[data-seat-single]")) {
+                hallLayoutContainer.attr("data-tool-value", "add_single_seat")
+                addSeatType = toolValue
+            } else if (tool.is("[data-seat-twin]")) {
+                hallLayoutContainer.attr("data-tool-value", "add_twin_seat")
+                addSeatType = toolValue
+            } else {
+                hallLayoutContainer.attr("data-tool-value", "default")
+            }
+        }
+
+        // Add row
+        $(document).on("click", "[data-add-row]", function () {
+            clearInputs()
+            $("#input-add-row").val($(this).attr("data-add-row"))
+            submitForm()
+        })
+
+        // Add column
+        $(document).on("click", "[data-add-column]", function () {
+            clearInputs()
+            $("#input-add-column").val($(this).attr("data-add-column"))
+            submitForm()
+        })
+
+        // Delete row
+        $(document).on("click", "[data-row-number]", function () {
+            clearInputs()
+            $("#input-delete-row").val($(this).attr("data-row-number"))
+            submitForm()
+        })
+
+        // Delete column
+        $(document).on("click", "[data-column-number]", function () {
+            clearInputs()
+            $("#input-delete-column").val($(this).attr("data-column-number"))
+            submitForm()
+        })
+
+        // Add single seat
+        $(document).on("click", "[data-single-select]", function () {            
+            if ($("#hall-layout-container").attr("data-tool-value") != "add_single_seat") return;
+
+            clearInputs()
+            $("#input-add-seat-row").val($(this).attr("data-row"))
+            $("#input-add-seat-column").val($(this).attr("data-column"))
+            $("#input-add-seat-type-id").val(addSeatType)
+            submitForm()
+        })
+
+        // Add twin seat
+        $(document).on("click", "[data-twin-select]", function () {
+            if ($("#hall-layout-container").attr("data-tool-value") != "add_twin_seat") return;
+
+            clearInputs()
+            $("#input-add-seat-row").val($(this).attr("data-row"))
+            $("#input-add-seat-column").val($(this).attr("data-column"))
+            $("#input-add-seat-type-id").val(addSeatType)
+            submitForm()
+        })
+
+        // Delete seat
+        $(document).on("click", "[data-seat-id]", function () {
+            if ($("#hall-layout-container").attr("data-tool-value") != "delete_seat") return;
+
+            clearInputs()
+            $("#input-delete-seat-id").val($(this).attr("data-seat-id"))
+            submitForm()
+        })
+
+        function clearInputs() {
+            $("form input").each(function () {
+                $(this).val("")
+            })
+        }
+
+        function submitForm() {
+            $("form").trigger('submit')
+        }
+    </script>
+}

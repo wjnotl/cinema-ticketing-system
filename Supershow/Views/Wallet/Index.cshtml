@@ -1,0 +1,109 @@
+@model WalletVM
+
+@{
+    ViewBag.Title = "My Wallet | Supershow";
+}
+
+@section head {
+    <style>
+        #wallet-balance-container {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-group img {
+            width: 50px;
+            height: 50px;
+        }
+
+        #balance-label {
+            margin-bottom: 5px;
+        }
+
+        #balance-value {
+            font-size: 25px;
+            font-weight: bold;
+            font-family: var(--secondary-font-family);
+        }
+
+        .transaction-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 20px;
+            border-radius: 5px;
+            text-decoration: none !important;
+            background-color: rgba(255, 255, 255, 0.15);
+            color: var(--primary-color) !important;
+            transition: all 0.3s ease;
+            max-width: 800px;
+        }
+
+        a.transaction-container:hover {
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .transaction-container .title {
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .transaction-container .time-stamp {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        .transaction-container .price {
+            font-size: 23px;
+            font-family: var(--secondary-font-family);
+            color: var(--price-positive-color);
+        }
+
+        .transaction-container .price.minus {
+            color: var(--price-negative-color);
+        }
+
+        .transaction-container .price::before {
+            content: "+";
+        }
+
+        .transaction-container .price.minus::before {
+            content: "-";
+        }
+    </style>
+}
+
+<div class="container" data-center-items="column">
+    <div id="wallet-balance-container" class="form-group">
+        <img src="/img/wallet.png">
+        <div>
+            <div id="balance-label">Wallet Balance</div>
+            <div id="balance-value">@FormatService.ToRMFormat(Model.Balance)</div>
+        </div>
+    </div>
+    <div class="form-group">
+        <a href="/Wallet/Reload" data-button="blue">+ Add Money</a>
+    </div>
+</div>
+
+<form class="container" data-center-items="column"
+    asp-action="Index" method="get"
+    data-ajax="true" data-ajax-update="#transaction-list-container"
+>
+    <h1>Transaction History</h1>
+    <div class="custom-tick-container center-text center-items specified-width background">
+        @foreach (var option in Model.Options)
+        {
+            <label>
+                <input data-auto-submit type="radio" asp-for="Option" value="@option.Key">
+                <div class="custom-tick-text">@option.Value</div>
+            </label>
+        }
+    </div>
+</form>
+
+<div id="transaction-list-container" class="container" data-center-items="block">
+    <partial name="_Transactions" model="Model.Results" />
+</div>

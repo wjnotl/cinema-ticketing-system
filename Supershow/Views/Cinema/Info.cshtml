@@ -1,0 +1,88 @@
+@model CinemaInfoVM
+
+@{
+    ViewBag.Title = "Cinema Info | Supershow";
+}
+
+@section head {
+    <style>
+        #buy-tickets-link {
+            float: right;
+        }
+
+        .cinema-info-container {
+            padding-bottom: 25px;
+            display: flex;
+            gap: 50px;
+        }
+
+        .cinema-info-container h3 {
+            margin: 10px 0;
+        }
+
+        .cinema-info-container p {
+            white-space: pre-line;
+        }
+    </style>
+}
+
+<div class="container">
+    <a id="buy-tickets-link" href="/Cinema/Showtimes/@Model.Cinema.Slug" data-button="yellow">Buy Tickets</a>
+    <div class="title">@Model.Cinema.Name</div>
+
+    <div class="cinema-info-container">
+        <div>
+            <h3>Number of Halls:</h3>
+            <p>@Model.TotalHalls</p>
+        </div>
+
+        <div>
+            <h3>Seating Capacity:</h3>
+            <p>@Model.TotalSeats</p>
+        </div>
+    </div>
+
+    @if (Model.Experiences.Count > 0)
+    {
+        <div class="cinema-info-container">
+            <div>
+                <h3>Experiences:</h3>
+                <div class="container experience-listing-container">
+                    @foreach (var experience in Model.Experiences)
+                    {
+                        <a href="/Experience/Info/@experience.Slug" class="experience-container">
+                            <img src="/img/experience/@(experience.Slug).png">
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="cinema-info-container">
+        <div>
+            <h3>Operating Hours:</h3>
+            <p>@Html.Raw(Model.Cinema.OperatingHours)</p>
+        </div>
+    </div>
+
+    <div class="cinema-info-container">
+        <div>
+            <h3>Contact Information:</h3>
+            <p>@Model.Cinema.ContactNumber</p>
+        </div>
+    </div>
+
+    <div class="cinema-info-container">
+        <div>
+            <h3>Address:</h3>
+            <div>@Model.Cinema.Address</div>
+        </div>
+    </div>
+    
+    <div class="cinema-info-container">
+        <iframe width="100%" height="600"
+            src="https://maps.google.com/maps?q=@(Model.Cinema.Latitude),@(Model.Cinema.Longitude)&z=15&output=embed"
+            frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+    </div>
+</div>

@@ -1,0 +1,251 @@
+@{
+    ViewBag.Title = "Verify | Supershow";
+}
+
+@section head {
+    <style>
+        #request-verification {
+            width: max-content;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #request-verification .image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 100px;
+            font-weight: bold;
+        }
+
+        #request-verification.check .image {
+            background-color: #0f3d2e;
+        }
+
+        #request-verification.cross .image,
+        #request-verification.incorrect .image {
+            background-color: #3b0d0c;
+        }
+
+        #request-verification.link .image {
+            background-color: #1e293b;
+        }
+
+        #request-verification.expired .image {
+            background-color: #4b3f26;
+        }
+
+        #request-verification.check .image::after {
+            content: "✓";
+            color: #22c55e;
+        }
+
+        #request-verification.cross .image::after,
+        #request-verification.incorrect .image::after {
+            content: "✗";
+            color: #ef4444;
+        }
+
+        #request-verification.link .image::after {
+            content: "✉︎";
+            color: #60a5fa;
+        }
+
+        #request-verification.expired .image::after {
+            content: "⏱︎";
+            color: #f59e0b;
+        }
+
+        #request-verification.check .status-title::after {
+            content: "Success";
+            color: #22c55e;
+        }
+
+        #request-verification.cross .status-title::after {
+            content: "Invalid Token";
+            color: #ef4444;
+        }
+
+        #request-verification.incorrect .status-title::after {
+            content: "Incorrect";
+            color: #ef4444;
+        }
+
+        #request-verification.link .status-title::after {
+            content: "Link Sent";
+            color: #60a5fa;
+        }
+
+        #request-verification.expired .status-title::after {
+            content: "Expired";
+            color: #f59e0b;
+        }
+
+        #request-verification .title {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: normal;
+            text-align: center;
+        }
+
+        #request-verification .status-title {
+            margin-top: 20px;
+            font-size: 40px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        #request-verification.check .title::after {
+            content: "Your request has been successfully verified";
+        }
+
+        #request-verification.cross .title::after {
+            content: "Please try requesting it again";
+        }
+
+        #request-verification.incorrect .title::after {
+            content: "Please check your email for the correct OTP and try again";
+            white-space: pre-wrap;
+        }
+
+        #request-verification.link .title::after {
+            content: "Please check your email and enter the OTP to continue";
+            white-space: pre-wrap;
+        }
+
+        #request-verification.expired .title::after {
+            content: "Your request has expired. Please try requesting it again";
+        }
+
+        #otp-container {
+            display: none;
+            gap: 10px;
+        }
+
+        #otp-container input {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #374151;
+            background-color: #111827;
+            color: var(--primary-color);
+            text-align: center;
+            padding: 0;
+            outline: none;
+            font-size: 20px;
+            font-family: var(--primary-font-family);
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        #request-verification.link #otp-container {
+            display: flex;
+        }
+
+        #request-button,
+        #try-again-button {
+            margin-top: 20px;
+        }
+    </style>
+}
+
+<div id="request-verification" class="container container-center @ViewBag.Status">
+    <div class="image"></div>
+    <div class="status-title"></div>
+    <div class="title"></div>
+
+    <div id="otp-container">
+        <input type="text" maxlength="1">
+        <input type="text" maxlength="1">
+        <input type="text" maxlength="1">
+        <input type="text" maxlength="1">
+        <input type="text" maxlength="1">
+        <input type="text" maxlength="1">
+    </div>
+
+    @if (ViewBag.Status == "incorrect")
+    {
+        <button id="try-again-button" data-button="yellow">Try Again</button>
+    }
+    else if (ViewBag.Status != "link")
+    {
+        if (ViewBag.ReturnUrl == "/")
+        {
+            <a href="/" id="request-button" data-button="outline">Back to Homepage</a>
+        }
+        else
+        {
+            <a href="@ViewBag.ReturnUrl" id="request-button" data-button="outline">Continue</a>
+        }
+    }
+</div>
+
+
+@section foot {
+    <script>
+        $("#otp-container input").on("input", function (ev) {
+            const value = $(this)
+                .val()
+                .replace(/[^0-9]/g, "")
+            if (value === "") {
+                $(this).val("")
+            } else if ($(this).next("input")[0]) {
+                $(this).next("input").focus()
+            }
+
+            if (
+                $("#otp-container input").filter(function () {
+                    return $(this).val() !== ""
+                }).length === 6
+            ) {
+                $("#otp-container input").off("keydown")
+                $("#otp-container input").off("input")
+                $("#otp-container input").prop("readonly", true)
+                submitOTP()
+            }
+        })
+
+        $("#otp-container input").on("keydown", function (ev) {
+            if (ev.code === "Backspace" && $(this).val() === "" && $(this).prev("input")[0]) {
+                $(this).prev("input").focus()
+            }
+        })
+
+        $("#otp-container input").on("paste", function (ev) {
+            ev.preventDefault()
+            const paste = (ev.originalEvent || ev).clipboardData.getData("text")
+            const digits = paste.replace(/[^0-9]/g, "").split("")
+            $("#otp-container input").each(function (index) {
+                if (digits[index]) {
+                    $(this).val(digits[index])
+                }
+            })
+            if (digits.length === 6) {
+                $("#otp-container input").off("keydown")
+                $("#otp-container input").off("input")
+                $("#otp-container input").prop("readonly", true)
+                submitOTP()
+            }
+        })
+
+        $("#try-again-button").on("click", function () {
+            const urlParams = new URLSearchParams(window.location.search)
+            urlParams.delete("otp")
+            window.location.href = window.location.pathname + "?" + urlParams.toString()
+        })
+
+        function submitOTP() {
+            const urlParams = new URLSearchParams(window.location.search)
+            urlParams.set("otp", $("#otp-container input")
+                .map(function () {
+                    return $(this).val()
+                })
+                .get()
+                .join(""))
+            window.location.href = window.location.pathname + "?" + urlParams.toString()
+        }
+    </script>
+}

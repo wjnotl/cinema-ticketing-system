@@ -1,0 +1,91 @@
+@model PaymentVM
+
+@{
+    ViewBag.Title = "Payment | Supershow";
+}
+
+@section head {
+    <style>
+        .custom-tick-image.wallet {
+            background-image: url("/img/wallet.png");
+        }
+
+        .custom-tick-container label:has(input[type="radio"]:checked) .custom-tick-image.wallet {
+            background-image: url("/img/wallet_selected.png");
+        }
+
+        .custom-tick-image.other {
+            background-image: url("/img/other_methods.png");
+        }
+
+        .custom-tick-container label:has(input[type="radio"]:checked) .custom-tick-image.other {
+            background-image: url("/img/other_methods_selected.png");
+        }
+
+        .summary-column-container {
+            font-family: var(--secondary-font-family);
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .summary-column-container[data-column-container="2"]>*:nth-child(2n + 2) {
+            text-align: end;
+        }
+
+        input[name="Option"],
+        input[name="Amount"] {
+            visibility: hidden;
+        }
+    </style>
+}
+
+<form data-expired-timestamp="@ViewBag.ExpiredTimestamp" class="form-container container-center" method="post">
+    <input asp-for="Option">
+    <input asp-for="Amount">
+
+    <div class="title">Payment</div>
+    <div class="form-group">
+        <label asp-for="Option"></label>
+        <div class="custom-tick-container flex background">
+            <label>
+                <input name="Method" type="radio" value="wallet" @(Model.Option == "wallet" ? "checked" : "") />
+                <div class="custom-tick-image wallet"></div>
+                <div>
+                    <div class="custom-tick-text">Wallet</div>
+                </div>
+            </label>
+
+            <label>
+                <input name="Method" type="radio" value="other" @(Model.Option == "other" ? "checked" : "") />
+                <div class="custom-tick-image other"></div>
+                <div>
+                    <div class="custom-tick-text">Other Methods</div>
+                </div>
+            </label>
+        </div>
+        <span asp-validation-for="@Model.Option"></span>
+    </div>
+
+    <div class="form-group">
+        <div class="divider-horizontal"></div>
+    </div>
+
+    <div class="form-group summary-column-container" data-column-container="2">
+        <div>Total</div>
+        <div>@FormatService.ToRMFormat(Model.Amount)</div>
+    </div>
+
+    <div class="form-group">
+        <button data-button="yellow">Pay Now</button>
+    </div>
+</form>
+
+@section foot {
+    <script>
+        $('input[name="Method"]').on('change', function () {
+            if (this.checked) {
+                $("input[name='Option']:not([type='radio'])").val($(this).val()).trigger("change").valid();
+            }
+        })
+    </script>
+}

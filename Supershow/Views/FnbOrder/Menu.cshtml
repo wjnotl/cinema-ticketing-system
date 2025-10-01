@@ -1,0 +1,320 @@
+@model FnbMenuVM
+
+@{
+    ViewBag.Title = "F&B Menu | Supershow";
+}
+
+@section head {
+    <style>
+        #product-list-container:not(:has(#no-results-container)) {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 430px));
+            gap: 20px;
+        }
+
+        .product-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .product-container>div {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-direction: row;
+            gap: 20px;
+        }
+
+        .product-container .image {
+            width: 128px;
+            height: 128px;
+        }
+
+        .product-info-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            flex: 1;
+        }
+
+        .product-container .name {
+            font-weight: bold;
+            font-size: 25px;
+        }
+
+        .product-container .product-info-container button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .product-container .product-info-container button img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .product-container .price {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .product-container .quantity-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .product-container .quantity-container button {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .product-container .quantity-container .quantity-number {
+            text-align: center;
+            width: 20px;
+        }
+
+        .product-variant-container {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .product-variant-container>div {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .product-variant-container .image {
+            width: 128px;
+            height: 128px;
+        }
+
+        .product-variant-info-container {
+            align-self: start;
+            flex: 1;
+        }
+
+        .product-variant-container .name {
+            font-weight: bold;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .product-variant-container .description {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .product-variant-container .stock {
+            font-size: 14px;
+        }
+
+        .product-variant-container .price {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .product-variant-container .quantity-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .product-variant-container .quantity-container button {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .product-variant-container .quantity-container .quantity-number {
+            text-align: center;
+            width: 20px;
+        }
+
+        .product-variant-container .quantity-container:has(.quantity-number[data-quantity-value="0"]) .minus-quantity,
+        .product-container .quantity-container:has(.quantity-number[data-quantity-value="0"]) .minus-quantity {
+            pointer-events: none;
+            background-color: var(--disabled-button-color) !important;
+            color: var(--disabled-button-font-color) !important;
+        }
+
+        #product-variant-list-container .divider-horizontal {
+            background-color: var(--quaternary-color);
+            margin: 30px 0;
+            height: 2px;
+        }
+    </style>
+}
+
+<partial name="_FnbOrderInfo" model="@(1, Model.FnbOrder.Cinema)" />
+
+<form id="category-listing-container"
+    asp-action="Menu" method="get"
+    class="container custom-tick-container center-text background big-text specified-width" data-ajax="true"
+    data-ajax-update="#product-list-container">
+    @foreach (var category in Model.AvailableCategories)
+    {
+        <label>
+            <input data-auto-submit type="radio" asp-for="CategoryId" value="@category.Id">
+            <div class="custom-tick-text">@category.Name</div>
+        </label>
+    }
+
+    <label>
+        <input data-auto-submit type="radio" asp-for="CategoryId" value="0">
+        <div class="custom-tick-text">Your Cart</div>
+    </label>
+</form>
+
+<div id="product-variation-overlay" class="overlay">
+    <div class="content">
+        <div class="overlay-header">
+            <div class="title">Variation Type</div>
+            <div class="overlay-close"></div>
+        </div>
+        <div id="product-variant-list-container" class="overlay-body">
+        </div>
+    </div>
+</div>
+
+<div id="product-list-container" class="container">
+    <partial name="_Menu" model="Model" />
+</div>
+
+<form method="post" data-expired-timestamp="@ViewBag.ExpiredTimestamp" id="summary-container">
+    <div class="summary-info">
+        <partial name="_Summary" />
+    </div>
+    <div>
+        <a data-expired-disable data-button="red" data-ajax="true" data-ajax-url="/FnbOrder/Cancel/@Model.FnbOrder.Id" data-ajax-method="post"
+        data-ajax-confirm="Are you sure you want to cancel this order?" data-ajax-success="window.location.href='/Account/History'">Cancel</a>
+        <button id="submit-button" data-button="yellow">Continue</button>
+    </div>
+</form>
+
+@section foot {
+    <script>
+        var myFnbOrderId = "@Model.FnbOrder.Id"
+        var myCinemaId = @Model.FnbOrder.CinemaId;
+        var myCategoryId = @Model.CategoryId;
+        var myItemId = null
+
+        $(document).on("click", "[data-fnb-item] button", function () {
+            var itemId = parseInt($(this).closest("[data-fnb-item]").data("fnb-item"))
+            $.ajax({
+                url: "/FnbOrder/FnbVariantMenu",
+                data: { id: myFnbOrderId, itemId },
+                success: async function (response) {
+                    await $("#product-variant-list-container").html(response)
+
+                    myItemId = itemId
+                    openOverlay("product-variation-overlay", () => {
+                        myItemId = null
+                    })
+                }
+            })
+        })
+
+        const connection = new signalR.HubConnectionBuilder().withUrl("/FnbOrderHub").build()
+
+        connection.on("Error", (message) => showToast(message))
+
+        connection.on("UpdateStock", (cinemaId, variantId, stockCount) => {
+            if (myCinemaId != cinemaId) return
+
+            var stock = $(`[data-fnb-variant="${variantId}"] .stock`)
+            if (!stock.length) return
+
+            stock.text(`Stock: ${stockCount}`)
+        })
+
+        connection.on("UpdateCartItemQuantity", (fnbOrderId, variantId, quantity) => {
+            if (myFnbOrderId != fnbOrderId) return
+
+            var qualityNumber = $(`[data-fnb-variant="${variantId}"] [data-quantity-value]`)
+            if (!qualityNumber.length) return
+
+            qualityNumber.attr("data-quantity-value", quantity)
+            qualityNumber.text(quantity)
+
+            $.ajax({
+                url: "/FnbOrder/RenderSummary",
+                data: { id: myFnbOrderId },
+                success: function (response) {
+                    $("#summary-container .summary-info").html(response)
+                }
+            })
+        })
+
+        connection.on("UpdateItem", (fnbOrderId, itemId) => {
+            if (myFnbOrderId != fnbOrderId) return
+
+            $.ajax({
+                url: "/FnbOrder/RenderFnbItem",
+                data: { id: myFnbOrderId, itemId, categoryId: myCategoryId },
+                success: function (response) {
+                    var ele = $(`[data-fnb-item="${itemId}"]`)
+
+                    if (ele.length) {
+                        ele.replaceWith(response)
+                    } else {
+                        $("#product-list-container").append(response)
+                    }
+
+                    if ($("#no-results-container").length) {
+                        $("[data-fnb-item]").remove()
+                    }
+                }
+            })
+        })
+
+        connection.on("ReloadVariants", (cinemaId, itemId) => {
+            if (myCinemaId != cinemaId) return
+            if (myItemId != itemId) return
+
+            $.ajax({
+                url: "/FnbOrder/FnbVariantMenu",
+                data: { id: myFnbOrderId, itemId },
+                success: function (response) {
+                    $("#product-variant-list-container").html(response)
+                }
+            })
+        })
+
+        connection.on("ReloadItems", (cinemaId) => {
+            if (cinemaId == null) {
+                window.location.reload()
+                return
+            }
+
+            $("#category-listing-container").trigger("submit")
+        })
+
+        connection.start().then(() => {
+            $(document).on("click", "[data-fnb-variant] button", function () {
+                var variantId = parseInt($(this).closest("[data-fnb-variant]").data("fnb-variant"))
+                var isIncrement = $(this).hasClass("add-quantity")
+
+                connection.invoke("AddToCart", myFnbOrderId, myItemId, variantId, isIncrement)
+            })
+        })
+    </script>
+}

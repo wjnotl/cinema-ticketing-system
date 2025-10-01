@@ -1,0 +1,129 @@
+﻿@model Booking
+
+@{
+    ViewBag.Title = "Seat Selection | Supershow";
+}
+
+@section head {
+    <style>
+        form:has(#submit-button) {
+            gap: 30px;
+            margin-top: 30px;
+        }
+    </style>
+}
+
+<partial name="_ShowtimeInfo" model="(1, Model.Showtime)" />
+
+<div class="container" data-center-items="row">
+    <div class="seat-label-container">
+        <img src="/img/seat/single_selected.png">
+        <span>Selected</span>
+    </div>
+
+    <div class="seat-label-container">
+        <img src="/img/seat/single_sold.png">
+        <span>Sold</span>
+    </div>
+
+    <div class="seat-label-container">
+        <img src="/img/seat/single_unavailable.png">
+        <span>Unavailable</span>
+    </div>
+
+    @if (ViewBag.IncludeSingleSeats)
+    {
+        <div class="seat-label-container">
+            <img src="/img/seat/single.png">
+            <span>Single</span>
+        </div>
+    }
+
+    @if (ViewBag.IncludeTwinSeats)
+    {
+        <div class="seat-label-container">
+            <img src="/img/seat/twin.png">
+            <span>Twin</span>
+        </div>
+    }
+</div>
+
+<div class="container" data-center-items="row">
+    <img src="/img/screen.png">
+</div>
+
+<div class="container horizontal-center" data-center-items="column">
+    <div id="hall-layout-container" class="seat-selection-container">
+        <partial name="_HallLayout" model="Model" />
+    </div>
+</div>
+
+<form method="post" data-expired-timestamp="@ViewBag.ExpiredTimestamp" class="container" data-center-items="row">
+    <a data-expired-disable data-button="red" 
+        data-ajax="true" 
+        data-ajax-url="/Booking/Cancel/@Model.Id" 
+        data-ajax-method="post"
+        data-ajax-confirm="Are you sure you want to cancel this booking?"
+        data-ajax-failure="defaultOnFailure"
+        data-ajax-success="window.location.href='/Account/History'"
+    >Cancel</a>
+    <button id="submit-button" data-button="yellow">Continue</button>
+</form>
+
+@section foot {
+    <script>
+        var myBookingId = "@Model.Id"
+        var myShowtimeId = @Model.ShowtimeId;
+
+        const connection = new signalR.HubConnectionBuilder().withUrl("/BookingHub").build()
+
+        connection.on("Error", (message) => showToast(message))
+        connection.on("UpdateSeat", (showtimeId, bookingId, bookingStatus, seatId, selected) => {
+            if (showtimeId != myShowtimeId) return;
+
+            var button = $(`button[data-seat-id='${seatId}']`)
+            if (!button.length) return;
+            button.removeClass("selected").removeClass("sold").removeClass("unavailable")
+
+            if (selected) {
+                if (bookingStatus == "Pending") {
+                    if (bookingId != null && myBookingId == bookingId) {
+                        button.addClass("selected")
+                    } else {
+                        button.addClass("unavailable")
+                    }
+                } else if (bookingStatus == "Confirmed") {
+                    button.addClass("sold");
+                }
+            }
+        })
+        connection.on("RequestRemapLayout", (showtimeId) => {
+            if (showtimeId == null) {
+                window.location.reload()
+                return;
+            }
+
+            if (showtimeId != myShowtimeId) return;
+
+            $.ajax({
+                url: "/Booking/Seats/@Model.Id",
+                success: function (response) {
+                    $("#hall-layout-container").html(response)
+                },
+                error: () => {
+                    window.location.reload()
+                }
+            })
+        })
+
+        connection.start().then(() => {
+            $(document).on("click", "button[data-seat-id]", function () {
+                if ($(this).hasClass("unavailable") || $(this).hasClass("sold")) return;
+
+                var seatId = $(this).data("seat-id")
+                var selected = !$(this).hasClass("selected")
+                connection.invoke("UpdateSeat", myBookingId, parseInt(seatId), selected)
+            })
+        })
+    </script>
+}

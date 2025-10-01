@@ -1,0 +1,84 @@
+@model Account
+
+@{
+    ViewBag.Title = "Edit Customer | Supershow";
+}
+
+<div class="container info-container horizontal-center">
+    <div class="title">Customer Details</div>
+    <div data-column-container="3">
+        <div>Id</div>
+        <div>:</div>
+        <div>@Model.Id</div>
+        <div>Name</div>
+        <div>:</div>
+        <div>@Model.Name</div>
+        <div>Email</div>
+        <div>:</div>
+        <div>@Model.Email</div>
+        <div>Status</div>
+        <div>:</div>
+        <div>@Model.Status</div>
+    </div>
+</div>
+
+<div class="container info-container horizontal-center">
+    <div class="title">Action</div>
+    <div class="action-button-container">
+        @if (!Model.IsBanned)
+        {
+            <a  data-button="red"
+                data-ajax="true"
+                data-ajax-url="@Url.Action("Ban", new { id = Model.Id })" 
+                data-ajax-method="POST"
+                data-ajax-failure="defaultOnFailure"
+                data-ajax-success="reloadPage"
+                data-ajax-confirm="Are you sure you want to ban this customer?"
+            >Ban Customer</a>
+        }
+        else
+        {
+            <a  data-button="blue"
+                data-ajax="true"
+                data-ajax-url="@Url.Action("Unban", new { id = Model.Id })" 
+                data-ajax-method="POST"
+                data-ajax-failure="defaultOnFailure"
+                data-ajax-success="reloadPage"
+                data-ajax-confirm="Are you sure you want to unban this customer?"
+            >Unban Customer</a>
+        }
+
+        @if (Model.DeletionAt != null)
+        {
+            <a  data-button="yellow"
+                data-ajax="true"
+                data-ajax-url="@Url.Action("RevokeDeletion", new { id = Model.Id })" 
+                data-ajax-method="POST"
+                data-ajax-failure="defaultOnFailure"
+                data-ajax-success="reloadPage"
+                data-ajax-confirm="Are you sure you want to revoke deletion for this customer?"
+            >Revoke Deletion</a>
+        }
+
+        @if (Model.LockoutEnd != null)
+        {
+            <a  data-button="yellow"
+                data-ajax="true"
+                data-ajax-url="@Url.Action("RemoveTimeout", new { id = Model.Id })" 
+                data-ajax-method="POST"
+                data-ajax-failure="defaultOnFailure"
+                data-ajax-success="reloadPage"
+                data-ajax-confirm="Are you sure you want to remove timeout for this customer?"
+            >Remove Timeout</a>
+        }
+
+        <a  data-button="red"
+            data-ajax="true"
+            data-ajax-url="@Url.Action("LogoutAllDevices", new { id = Model.Id })" 
+            data-ajax-method="POST"
+            data-ajax-failure="defaultOnFailure"
+            data-ajax-success="reloadPage"
+            data-ajax-confirm="Are you sure you want to log out all devices of this customer?"
+        >Log Out from All Devices</a>
+    </div>
+</div>

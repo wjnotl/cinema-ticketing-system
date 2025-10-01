@@ -1,0 +1,103 @@
+@model EditCinemaVM
+
+@{
+    ViewBag.Title = "Edit Cinema | Supershow";
+}
+
+<form class="container info-container horizontal-center" method="post">
+    <input hidden asp-for="Id" />
+
+    <div class="title">Cinema Details</div>
+    <div data-column-container="3">
+        <div>Id</div>
+        <div>:</div>
+        <div>@Model.Id</div>
+
+        <label asp-for="Name"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="Name">
+            </div>
+            <span asp-validation-for="Name"></span>
+        </div>
+
+        <label asp-for="Slug"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="Slug">
+            </div>
+            <span asp-validation-for="Slug"></span>
+        </div>
+
+        <label asp-for="Address"></label>
+        <div>:</div>
+        <div class="form-group">
+            <textarea asp-for="Address"></textarea>
+            <span asp-validation-for="Address"></span>
+        </div>
+
+        <label asp-for="Latitude"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input type="number" asp-for="Latitude">
+            </div>
+            <span asp-validation-for="Latitude"></span>
+        </div>
+
+        <label asp-for="Longitude"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input type="number" asp-for="Longitude">
+            </div>
+            <span asp-validation-for="Longitude"></span>
+        </div>
+
+        <label asp-for="OperatingHours"></label>
+        <div>:</div>
+        <div class="form-group">
+            <textarea asp-for="OperatingHours"></textarea>
+            <span asp-validation-for="OperatingHours"></span>
+        </div>
+
+        <label asp-for="ContactNumber"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="ContactNumber">
+            </div>
+            <span asp-validation-for="ContactNumber"></span>
+        </div>
+
+        <label asp-for="State"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="input-group">
+                <div class="custom-select">
+                    <select asp-for="State" asp-items="Model.AvailableStates"></select>
+                </div>
+            </div>
+            <span asp-validation-for="State"></span>
+        </div>
+
+    </div>
+    <button data-button="green">Save Changes</button>
+</form>
+
+<div class="container info-container horizontal-center">
+    <div class="title">Action</div>
+    <div class="action-button-container">
+        <a href="@Url.Action("Manage", "Hall", new { CinemaId = Model.Id })" data-button="blue">Manage Halls</a>
+        <a  data-button="red"
+            data-ajax="true"
+            data-ajax-url="@Url.Action("Delete", new { id = Model.Id })" 
+            data-ajax-method="POST"
+            data-ajax-failure="defaultOnFailure"
+            data-ajax-success="redirectToPage('@Url.Action("Manage")')"
+            data-ajax-confirm="Are you sure you want to delete this cinema?"
+        >Delete Cinema</a>
+    </div>
+</div>

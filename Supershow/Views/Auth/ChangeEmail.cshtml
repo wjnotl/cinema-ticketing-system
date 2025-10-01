@@ -1,0 +1,30 @@
+@model ChangeEmailVM
+
+@{
+    ViewBag.Title = "Change Email | Supershow";
+}
+
+<div class="form-container container-center">
+    <div class="title">Change Email</div>
+    <form method="post" data-expired-timestamp="@ViewBag.ExpiredTimestamp">
+        <div class="form-group">
+            <label asp-for="Email"></label>
+            <div class="form-input">
+                <input asp-for="Email" placeholder="Enter a new email address" />
+            </div>
+            <span asp-validation-for="Email"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ConfirmEmail"></label>
+            <div class="form-input">
+                <input asp-for="ConfirmEmail" placeholder="Enter the new email address again" />
+            </div>
+            <span asp-validation-for="ConfirmEmail"></span>
+        </div>
+
+        <div class="form-group">
+            <button class="button-full" type="submit" data-button="yellow">Change Email</button>
+        </div>
+    </form>
+</div>

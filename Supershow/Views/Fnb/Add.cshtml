@@ -1,0 +1,134 @@
+@model AddFnbItemVM
+
+@{
+    ViewBag.Title = "Add F&B Item | Supershow";
+}
+
+@section head {
+    <style>
+        #image-preview-container {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 12px;  
+        }
+
+        #image-preview-container:not(:has(img[src])) {
+            display: none;
+        }
+
+        #image-preview {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #image-preview.horizontal-fit {
+            width: 100%;
+            object-fit: contain;
+        }
+
+        #image-preview.vertical-fit {
+            height: 100%;
+            object-fit: contain;
+        }
+    </style>
+}
+
+<form class="container info-container horizontal-center" enctype="multipart/form-data" method="post">
+    <div class="title">Add F&B Item</div>
+    <div data-column-container="3">
+        <label asp-for="Name"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="Name">
+            </div>
+            <span asp-validation-for="Name"></span>
+        </div>
+
+        <label asp-for="FnbCategory"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="input-group">
+                <div class="custom-select">
+                    <select asp-for="FnbCategory" asp-items="Model.AvailableCategories"></select>
+                </div>
+            </div>
+            <span asp-validation-for="FnbCategory"></span>
+        </div>
+
+        <label asp-for="Image"></label>
+        <div>:</div>
+        <div class="form-group">
+            <input type="file" id="image-file" asp-for="Image" accept="image/jpeg, image/png" hidden />
+            <input id="image-x" asp-for="ImageX" hidden>
+            <input id="image-y" asp-for="ImageY" hidden>
+            <input id="image-scale" asp-for="ImageScale" hidden>
+            <input asp-for="PreviewWidth" hidden>
+            <input asp-for="PreviewHeight" hidden>
+
+            <div id="image-preview-container"
+                    style="width: @(Model.PreviewWidth)px; height: @(Model.PreviewHeight)px">
+                <img id="image-preview" class="vertical-fit" />
+            </div>
+
+            <div class="form-group">
+                <span asp-validation-for="Image"></span>
+            </div>
+
+            <div class="button-group-inline">
+                <button type="button" id="upload-image-button" data-button="yellow">Upload</button>
+            </div>
+        </div>
+    </div>
+
+    <button data-button="green">Create</button>
+</form>
+
+<div id="upload-overlay" class="overlay upload-overlay">
+    <div class="content">
+        <div class="overlay-header">
+            <div class="title">Upload Image</div>
+            <div class="overlay-close"></div>
+        </div>
+        <div class="overlay-body">
+            <div class="upload-drop-zone" class="show">
+                <div>Drag and drop your image here or click to select</div>
+            </div>
+            <div class="upload-preview-zone">
+                <div class="upload-preview-container" class="show">
+                    <img class="upload-preview-image" draggable="false" />
+                </div>
+                <input type="range" class="zoom-slider" min="1" max="2" step="0.01" />
+                <button class="confirm-upload" data-button="yellow">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section foot {
+    <script>
+        const originalSrc = $("#image-preview").attr("src")
+        const uploadOverlay = new UploadOverlay("#image-file", @Model.PreviewWidth, @Model.PreviewHeight)
+
+        $("#upload-image-button").on("click", async function () {
+            const uploadResult = await uploadOverlay.open()
+            if (uploadResult) {
+                if (uploadResult.horizontalFit) {
+                    $("#image-preview").addClass("horizontal-fit")
+                    $("#image-preview").removeClass("vertical-fit")
+                } else {
+                    $("#image-preview").addClass("vertical-fit")
+                    $("#image-preview").removeClass("horizontal-fit")
+                }
+
+                $("#image-preview").attr("src", uploadResult.src)
+                $("#image-x").val(uploadResult.imgX)
+                $("#image-y").val(uploadResult.imgY)
+                $("#image-scale").val(uploadResult.scale)
+                updateImagePreview("#image-preview", $("#image-x").val(), $("#image-y").val(), $("#image-scale").val())
+            }
+        })
+    </script>
+}

@@ -1,0 +1,179 @@
+@model FnbOrder
+
+@{
+    ViewBag.Title = "Edit F&B Order | Supershow";
+}
+
+@section head {
+    <style>
+        #qr-container {
+            width: 140px;
+            height: 140px;
+            padding: 10px;
+            background-color: white;
+        }
+
+        #qr-container>img {
+            width: 100%;
+        }
+
+        #qr-container>canvas {
+            display: none;
+        }
+
+        .item-container>*:has(img) {
+            width: 140px;
+            height: 140px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item-container img {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+}
+
+<div class="container info-container horizontal-center">
+    <div class="title">Order Details</div>
+    <div data-column-container="2">
+        <div id="qr-container"></div>
+        <div data-column-container="3">
+            <div>Id</div>
+            <div>:</div>
+            <div>@Model.Id</div>
+            <div>Date</div>
+            <div>:</div>
+            <div>@FormatService.ToDateTimeFormat(Model.CreatedAt, "dd MMM yyyy")</div>
+            <div>Time</div>
+            <div>:</div>
+            <div>@FormatService.ToDateTimeFormat(Model.CreatedAt, "hh:mm tt")</div>
+            <div>Pickup</div>
+            <div>:</div>
+            <div>
+                <span>@Model.Cinema.Name</span>
+                @if (Model.PickupExpiresAt != null)
+                {
+                    <span>(before @FormatService.ToDateTimeFormat(Model.PickupExpiresAt.Value, "dd MMM yyyy hh:mm tt"))</span>
+                }
+            </div>
+            <div>Total Price</div>
+            <div>:</div>
+            <div>@FormatService.ToRMFormat(Model.FnbOrderItems.Sum(oi => oi.Price))</div>
+            <div>Status</div>
+            <div>:</div>
+            <div>@Model.Status</div>
+        </div>
+    </div>
+</div>
+
+<div class="container info-container horizontal-center">
+	<div class="title">Customer Details</div>
+	<div data-column-container="3">
+		<div>Id</div>
+		<div>:</div>
+		<div>@Model.AccountId</div>
+		<div>Name</div>
+		<div>:</div>
+		<div>@Model.Account.Name</div>
+		<div>Email Address</div>
+		<div>:</div>
+		<div>@Model.Account.Email</a></div>
+	</div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Payment?.PaymentType))
+{
+    <div class="container info-container horizontal-center">
+        <div class="title">Payment Details</div>
+        <div data-column-container="3">
+            <div>Payment Option</div>
+            <div>:</div>
+            <div>@Model.Payment.PaymentType</div>
+
+            @if (!string.IsNullOrEmpty(Model.Payment.Details))
+            {
+                <div>@(Model.Payment.PaymentType == "Card" ? "Card Number" : "Bank Name")</div>
+                <div>:</div>
+                <div>@Model.Payment.Details</div>
+            }
+
+            @if (Model.Payment.PaidAt != null)
+			{
+				<div>Paid At</div>
+				<div>:</div>
+				<div>@FormatService.ToDateTimeFormat(Model.Payment.PaidAt.Value, "dd MMM yyyy hh:mm tt")</div>
+			}
+        </div>
+    </div>
+}
+
+<div class="container info-container horizontal-center">
+    <div class="title">Items Ordered</div>
+
+    @foreach (var item in Model.FnbOrderItems)
+    {
+        var variant = item.FnbItemVariant;
+
+        <div class="content-container item-container" data-column-container="2">
+            <div>
+                <img src="/uploads/fnb/@variant.Image">
+            </div>
+            <div data-column-container="3">
+                <div>Id</div>
+                <div>:</div>
+                <div>@variant.Id</div>
+                <div>Name</div>
+                <div>:</div>
+                <div>@variant.FnbItem.Name</div>
+                <div>Variant</div>
+                <div>:</div>
+                <div>@variant.Name</div>
+                <div>Quantity</div>
+                <div>:</div>
+                <div>@item.Quantity</div>
+                <div>Subtotal</div>
+                <div>:</div>
+                <div>@FormatService.ToRMFormat(item.Price)</div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.Status == "Pending" || Model.Status == "Unpaid" || Model.Status == "Confirmed")
+{
+	<div class="container info-container horizontal-center">
+		<div class="title">Action</div>
+		<div class="action-button-container">
+            @if (Model.Status == "Confirmed") {
+                <a href="@Url.Action("Complete", new { id = Model.Id})" data-button="green" 
+                data-ajax="true" 
+                data-ajax-method="POST"
+                data-ajax-confirm="Are you sure you want to complete this order?" 
+                data-ajax-failure="defaultOnFailure" 
+                data-ajax-complete="reloadPage()"
+                >Complete Order</a>
+            }
+            @if (Model.Status == "Pending" || Model.Status == "Unpaid" || Model.Status == "Confirmed") {
+                <a href="@Url.Action("Cancel", new { id = Model.Id})" data-button="red" 
+                data-ajax="true" 
+                data-ajax-method="POST"
+                data-ajax-confirm="Are you sure you want to cancel this order?" 
+                data-ajax-failure="defaultOnFailure" 
+                data-ajax-complete="redirectToPage('@Url.Action("Manage", new { CinemaId = Model.CinemaId })')"
+                >Cancel Order</a>
+            }
+		</div>
+	</div>
+}
+
+@section foot {
+    <script src="/js/qrcode.min.js"></script>
+    <script>
+        var bookingId = "@Model.Id";
+        new QRCode(document.getElementById("qr-container"), bookingId);
+    </script>
+}

@@ -1,0 +1,113 @@
+@model EditShowtimeVM
+
+@{
+    ViewBag.Title = "Edit Showtime | Supershow";
+}
+
+<form class="container info-container horizontal-center" method="post">
+    <input asp-for="Id" hidden>
+    <input asp-for="CinemaId" hidden>
+    <input asp-for="HasBookings" hidden>
+    <input asp-for="MovieDuration" hidden>
+    <input asp-for="MovieTitle" hidden>
+    <input asp-for="HallName" hidden>
+
+    <div class="title">Showtime Details</div>
+    <div data-column-container="3">
+        <div>Id</div>
+        <div>:</div>
+        <div>@Model.Id</div>
+
+        <label asp-for="MovieId"></label>
+        <div>:</div>
+        @if (Model.HasBookings)
+        {
+            <div>@Model.MovieId - @Model.MovieTitle</div>
+        }
+        else
+        {
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="custom-select">
+                        <select id="movie-id" asp-for="MovieId" asp-items="Model.AvailableMovies"></select>
+                    </div>
+                </div>
+                <span asp-validation-for="MovieId"></span>
+            </div>
+        }
+
+        <label asp-for="HallId"></label>
+        <div>:</div>
+        @if (Model.HasBookings)
+        {
+            <div>@Model.HallId - @Model.HallName</div>
+        }
+        else
+        {
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="custom-select">
+                        <select asp-for="HallId" asp-items="Model.AvailableHalls"></select>
+                    </div>
+                </div>
+                <span asp-validation-for="HallId"></span>
+            </div>
+        }
+
+        <label asp-for="StartTime"></label>
+        <div>:</div>
+        @if (Model.HasBookings)
+        {
+            <div>@FormatService.ToDateTimeFormat(Model.StartTime, "dd MMM yyyy - hh:mm tt")</div>
+        }
+        else
+        {
+            <div class="form-group">
+                <input id="start-time" asp-for="StartTime">
+                <span asp-validation-for="StartTime"></span>
+            </div>
+        }
+
+        <label>End Time</label>
+        <div>:</div>
+        <div id="end-time">
+            <partial name="_EndTime" model="@((DateTime?)Model.StartTime, Model.MovieDuration)" />
+        </div>
+
+    </div>
+
+    @if (!Model.HasBookings)
+    {
+        <button data-button="green">Save Changes</button>
+    }
+</form>
+
+<div class="container info-container horizontal-center">
+    <div class="title">Action</div>
+    <div class="action-button-container">
+        <a data-button="red" data-ajax="true" data-ajax-url="@Url.Action("Delete", new { id = Model.Id })"
+            data-ajax-method="POST" data-ajax-failure="defaultOnFailure"
+            data-ajax-success="redirectToPage('@Url.Action("Manage", new { CinemaId = Model.CinemaId })')"
+            data-ajax-confirm="Are you sure you want to delete this showtime?">Delete Showtime</a>
+    </div>
+</div>
+
+@section foot {
+    <script>
+        function updateEndTime() {
+            var movieId = $("#movie-id").val()
+
+            $.ajax({
+                url: "@Url.Action("GetEndTime")",
+                method: "GET",
+                data: { startTime: $("#start-time").val().toString(), movieId: movieId },
+                success: function (data) {
+                    $("#end-time").html(data)
+                }
+            })
+        }
+
+        $("#movie-id").on("change", updateEndTime)
+        $("#start-time").on("change", updateEndTime)
+    </script>
+}

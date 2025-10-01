@@ -1,0 +1,28 @@
+@model (int Progress, Showtime Showtime)
+
+<div class="booking-showtime-info-container banner-container">
+    <img
+        src="/uploads/@(string.IsNullOrEmpty(Model.Showtime.Movie.Banner) ? $"poster/{Model.Showtime.Movie.Poster}" : $"banner/{Model.Showtime.Movie.Banner}")">
+    <div class="banner-overlay-horizontal"></div>
+    <div class="banner-overlay-vertical"></div>
+
+    <partial name="_Progress" model="@(new List<string> { "Select seats", "Checkout" }, Model.Progress)" />
+
+    <div class="showtime-info-container">
+        <div class="movie-name">@Model.Showtime.Movie.Title</div>
+        <div class="movie-info">
+            @FormatService.ToDurationFormat(Model.Showtime.Movie.Duration)
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            @Model.Showtime.Movie.SpokenLanguage.Name
+        </div>
+        <div class="movie-info">
+            @Model.Showtime.Hall.Cinema.Name
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            @Model.Showtime.Hall.Experience.Name
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            @FormatService.ToDateTimeFormat(Model.Showtime.StartTime, "d MMMM yyyy")
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            @FormatService.ToDateTimeFormat(Model.Showtime.StartTime, "hh:mm tt")
+        </div>
+    </div>
+</div>

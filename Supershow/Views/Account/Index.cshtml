@@ -1,0 +1,285 @@
+@model AccountProfileVM
+
+@{
+    ViewBag.Title = "My Account | Supershow";
+    var isDefaultAdminEmail = false;
+}
+
+@section head {
+    <style>
+        #account-container {
+            max-width: 1000px;
+        }
+
+        .profile-container {
+            display: flex;
+            gap: 48px;
+        }
+
+        #change-email-button {
+            width: 20px;
+            height: 20px;
+            background-image: url("/img/edit.png");
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            cursor: pointer;
+            transition: filter 0.3s ease;
+        }
+
+        #change-email-button:hover {
+            filter: brightness(0.5);
+        }
+
+        #change-email-button-loader {
+            width: 20px;
+            height: 20px;
+            background-image: url("/img/loading.gif");
+            background-size: 190%;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        #profile-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            flex: 1;
+        }
+
+        #profile-picture {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        #profile-preview-container {
+            position: relative;
+            border-radius: 50%;
+            overflow: hidden;
+            transform: scale(0.8);
+        }
+
+        #profile-preview {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #profile-preview.horizontal-fit {
+            width: 100%;
+            object-fit: contain;
+        }
+
+        #profile-preview.vertical-fit {
+            height: 100%;
+            object-fit: contain;
+        }
+    </style>
+}
+
+<div id="account-container" class="container">
+    <div class="title">My Account</div>
+
+    <form id="account-form" enctype="multipart/form-data" method="post">
+        <div class="profile-container">
+            <div id="profile-info">
+                <div class="form-group">
+                    <label asp-for="Name"></label>
+                    <div class="form-input">
+                        <input asp-for="Name" />
+                    </div>
+                    <span asp-validation-for="Name"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-group">
+                        <div class="form-input">
+                            <input type="password" id="email" value="@Model.Email" readonly />
+                            <input type="checkbox" class="password-show-button">
+                            @if (!isDefaultAdminEmail)
+                            {
+                                <a data-ajax="true" data-ajax-loading="#change-email-button-loader"
+                                    data-ajax-url="/Account/RequestChangeEmail" data-ajax-method="post"
+                                    data-ajax-confirm="Are you sure you want to change your email address?"
+                                    data-ajax-begin="changeEmailBegin" data-ajax-complete="changeEmailComplete"
+                                    data-ajax-success="changeEmailSuccess" id="change-email-button"></a>
+                                <div id="change-email-button-loader" style="display: none;"></div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" id="account-submit-button" class="button-full" data-button="green"
+                        disabled>Save Changes</button>
+                    <a href="/Account/ChangePassword" class="button-full" data-button="blue">Change
+                        Password</a>
+                    @if (!isDefaultAdminEmail)
+                    {
+                        <a data-ajax="true" data-ajax-method="post" data-ajax-url="/Account/RequestDeleteAccount"
+                            data-ajax-confirm="Are you sure you want to delete your account?"
+                            data-ajax-begin="deleteAccountBegin" data-ajax-complete="deleteAccountComplete"
+                            data-ajax-success="deleteAccountSuccess" id="delete-account-button" class="button-full"
+                            data-button="red">Delete
+                            Account</a>
+                    }
+                </div>
+            </div>
+
+            <div class="divider-vertical"></div>
+
+            <div id="profile-picture">
+                <input type="file" id="profile-picture-file" asp-for="Image" accept="image/jpeg, image/png" hidden />
+                <input id="remove-image-checkbox" asp-for="RemoveImage" hidden />
+                <input id="change-image-checkbox" name="change-image-checkbox" type="checkbox" hidden>
+                <input id="image-x" asp-for="ImageX" hidden>
+                <input id="image-y" asp-for="ImageY" hidden>
+                <input id="image-scale" asp-for="ImageScale" hidden>
+                <input asp-for="PreviewWidth" hidden>
+                <input asp-for="PreviewHeight" hidden>
+
+                <div id="profile-preview-container"
+                    style="width: @(Model.PreviewWidth)px; height: @(Model.PreviewHeight)px">
+                    <img id="profile-preview" src="@ViewBag.AccountImageUrl" class="vertical-fit" />
+                </div>
+                <div class="form-group">
+                    <span asp-validation-for="Image"></span>
+                </div>
+                <div class="button-group-inline">
+                    <button type="button" id="upload-profile-picture-button" data-button="yellow">Upload</button>
+                    <button type="button" id="remove-profile-picture-button" data-button="red" @(ViewBag.AccountImageUrl
+                                                                                                                       == "/img/pfp.png" ? "disabled" : "")>Remove</button>
+                    <button type="button" id="reset-profile-picture-button" data-button="blue" disabled>Reset</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="upload-overlay" class="overlay upload-overlay">
+    <div class="content">
+        <div class="overlay-header">
+            <div class="title">Upload Profile Picture</div>
+            <div class="overlay-close"></div>
+        </div>
+        <div class="overlay-body">
+            <div class="upload-drop-zone" class="show">
+                <div>Drag and drop your image here or click to select</div>
+            </div>
+            <div class="upload-preview-zone">
+                <div class="upload-preview-container" class="show">
+                    <img class="upload-preview-image" draggable="false" />
+                    <div class="pfp-circle"></div>
+                </div>
+                <input type="range" class="zoom-slider" min="1" max="2" step="0.01" />
+                <button class="confirm-upload" data-button="yellow">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section foot {
+    <script>
+        function changeEmailBegin() {
+            $(this).hide()
+        }
+
+        function changeEmailComplete() {
+            $(this).show()
+        }
+
+        function changeEmailSuccess(data) {
+            window.location.href = `/Auth/Verify?Token=${data}`
+        }
+
+        function deleteAccountBegin() {
+            $(this).attr("data-button", "disabled")
+            $(this).text("Pending...")
+        }
+
+        function deleteAccountComplete() {
+            $(this).text("Delete Account")
+            $(this).attr("data-button", "red")
+        }
+
+        function deleteAccountSuccess(data) {
+            window.location.href = `/Auth/Verify?Token=${data}`
+        }
+
+        $("#account-submit-button").prop("disabled", true)
+        const formChanges = detectFormChanges(
+            "#account-form",
+            "input",
+            function () {
+                $("#account-submit-button").prop("disabled", false)
+            },
+            function () {
+                $("#account-submit-button").prop("disabled", true)
+            }
+        )
+
+        const originalSrc = $("#profile-preview").attr("src")
+        const noPfp = originalSrc === "/img/pfp.png"
+        const uploadOverlay = new UploadOverlay("#profile-picture-file")
+
+        $("#upload-profile-picture-button").on("click", async function () {
+            const uploadResult = await uploadOverlay.open()
+            if (uploadResult) {
+                if (uploadResult.horizontalFit) {
+                    $("#profile-preview").addClass("horizontal-fit")
+                    $("#profile-preview").removeClass("vertical-fit")
+                } else {
+                    $("#profile-preview").addClass("vertical-fit")
+                    $("#profile-preview").removeClass("horizontal-fit")
+                }
+
+                $("#profile-preview").attr("src", uploadResult.src)
+                $("#image-x").val(uploadResult.imgX)
+                $("#image-y").val(uploadResult.imgY)
+                $("#image-scale").val(uploadResult.scale)
+                updateImagePreview("#profile-preview", $("#image-x").val(), $("#image-y").val(), $("#image-scale").val())
+
+                $("#change-image-checkbox").prop("checked", true).trigger("change")
+                $("#remove-image-checkbox").prop("checked", false).trigger("change")
+                $("#remove-profile-picture-button").prop("disabled", false)
+                $("#reset-profile-picture-button").prop("disabled", false)
+            }
+        })
+
+        $("#reset-profile-picture-button").on("click", async function () {
+            $("#profile-picture-file").val("") // remove file input value
+
+            $("#image-x").val(0)
+            $("#image-y").val(0)
+            $("#image-scale").val(1)
+            updateImagePreview("#profile-preview", $("#image-x").val(), $("#image-y").val(), $("#image-scale").val())
+
+            $("#profile-preview").attr("src", originalSrc)
+            $("#profile-preview").addClass("vertical-fit")
+            $("#profile-preview").removeClass("horizontal-fit")
+
+            $("#change-image-checkbox").prop("checked", false).trigger("change")
+            $("#remove-image-checkbox").prop("checked", false).trigger("change")
+            $("#remove-profile-picture-button").prop("disabled", noPfp)
+            $("#reset-profile-picture-button").prop("disabled", true)
+        })
+
+        $("#remove-profile-picture-button").on("click", async function () {
+            if (await confirmation("Are you sure you want to remove your profile picture?", "Yes")) {
+                $("#change-image-checkbox").prop("checked", false).trigger("change")
+                $("#remove-image-checkbox").prop("checked", !noPfp).trigger("change")
+                $("#remove-profile-picture-button").prop("disabled", true)
+                $("#reset-profile-picture-button").prop("disabled", noPfp)
+
+                $("#profile-preview").css("transform", "")
+                $("#profile-preview").addClass("vertical-fit")
+                $("#profile-preview").removeClass("horizontal-fit")
+                $("#profile-preview").attr("src", "/img/pfp.png")
+            }
+        })
+    </script>
+}

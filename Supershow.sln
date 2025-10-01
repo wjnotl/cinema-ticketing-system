@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36221.1 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Supershow", "Supershow\Supershow.csproj", "{D7AA4222-FEC0-436B-83D4-063D3A85DE87}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D7AA4222-FEC0-436B-83D4-063D3A85DE87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7AA4222-FEC0-436B-83D4-063D3A85DE87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7AA4222-FEC0-436B-83D4-063D3A85DE87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7AA4222-FEC0-436B-83D4-063D3A85DE87}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AA85FCEF-F349-4ED4-B8F8-E1E32BF4A38A}
+	EndGlobalSection
+EndGlobal

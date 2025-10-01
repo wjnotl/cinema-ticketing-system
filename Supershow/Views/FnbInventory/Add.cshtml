@@ -1,0 +1,31 @@
+@model AddFnbInventoryVM
+
+@{
+    ViewBag.Title = "Add F&B Inventory | Supershow";
+}
+
+<form class="container info-container horizontal-center" method="post">
+    <div class="title">Add F&B Inventory - @ViewBag.CinemaName</div>
+    <div data-column-container="3">
+        <label asp-for="VariantId"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="input-group">
+                <div class="custom-select">
+                    <select asp-for="VariantId" asp-items="Model.AvailableVariants"></select>
+                </div>
+            </div>
+            <span asp-validation-for="VariantId"></span>
+        </div>
+
+        <label asp-for="StockCount"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="@Model.StockCount" />
+            </div>
+            <span asp-validation-for="@Model.StockCount"></span>
+        </div>
+    </div>
+    <button data-button="green">Create</button>
+</form>

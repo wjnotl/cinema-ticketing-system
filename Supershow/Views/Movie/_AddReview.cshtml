@@ -1,0 +1,82 @@
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@model ReviewInputVM
+
+<input type="hidden" id="own-review-rating-input" asp-for="Rating" value="@Model.Rating">
+<img class="pfp-image" src="@ViewBag.AccountImageUrl" >
+<div id="own-review-input-container">
+    <div class="form-group">
+        <div class="input-group">
+            <div data-rating="@Model.Rating" class="rating-stars-container">
+                <div class="empty-star">
+                    <div class="star-setter">
+                        <div class="star"></div>
+                    </div>
+                </div>
+                <div class="empty-star">
+                    <div class="star-setter">
+                        <div class="star"></div>
+                    </div>
+                </div>
+                <div class="empty-star">
+                    <div class="star-setter">
+                        <div class="star"></div>
+                    </div>
+                </div>
+                <div class="empty-star">
+                    <div class="star-setter">
+                        <div class="star"></div>
+                    </div>
+                </div>
+                <div class="empty-star">
+                    <div class="star-setter">
+                        <div class="star"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span asp-validation-for="Rating"></span>
+    </div>
+    <div class="form-group">
+        <div class="input-group">
+            <div class="form-input">
+                @{
+                    string showSendButton = "show";
+                    string showDeleteButton = "";
+                    string readonlyInput = "";
+                    string placeholderText = "Write a review";
+
+                    if (!(ViewBag.Authenticated ?? false))
+                    {
+                        showSendButton = "";
+                        readonlyInput = "readonly";
+                        placeholderText = "Please login to write review";
+                    }
+                    else if (!(ViewBag.HasWatchedMovie ?? false))
+                    {
+                        showSendButton = "";
+                        readonlyInput = "readonly";
+                        placeholderText = "You can only write a review after watching the movie";
+                    }
+                    else if (ViewBag.HasCommented ?? false)
+                    {
+                        showSendButton = "";
+                        showDeleteButton = "show";
+                        readonlyInput = "readonly";
+                        placeholderText = "";
+                    }
+                }
+                <input id="own-review-input" type="text" maxlength="100" placeholder="@placeholderText"
+                    value="@Model.Comment" @readonlyInput name="Comment">
+            </div>
+            <button id="send-review-button" class="@showSendButton"></button>
+            <a id="delete-review-button" class="@showDeleteButton"
+                data-ajax="true"
+                data-ajax-method="POST"
+                data-ajax-url="/Movie/DeleteReview?id=@Model.Id"
+                data-ajax-failure="defaultOnFailure"
+                data-ajax-success="reloadPage"
+            ></a>
+        </div>
+        <span asp-validation-for="Comment"></span>
+    </div>
+</div>

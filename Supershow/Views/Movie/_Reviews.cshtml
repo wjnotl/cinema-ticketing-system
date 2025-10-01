@@ -1,0 +1,40 @@
+@model List<Review>
+
+@foreach (var review in Model)
+{
+    <div class="review-container">
+		<img class="pfp-image" src="/uploads/account/@review.Account.Image">
+		<div class="user-info">
+			<span class="name">@review.Account.Name</span>
+			<div data-rating="@review.Rating" class="rating-stars-container">
+				<div class="empty-star">
+					<div class="star-setter">
+						<div class="star"></div>
+					</div>
+				</div>
+				<div class="empty-star">
+					<div class="star-setter">
+						<div class="star"></div>
+					</div>
+				</div>
+				<div class="empty-star">
+					<div class="star-setter">
+						<div class="star"></div>
+					</div>
+				</div>
+				<div class="empty-star">
+					<div class="star-setter">
+						<div class="star"></div>
+					</div>
+				</div>
+				<div class="empty-star">
+					<div class="star-setter">
+						<div class="star"></div>
+					</div>
+				</div>
+			</div>
+			<span class="log-entry">@FormatService.GetRelativeTime(review.CreatedAt)</span>
+			<p class="comment">@review.Comment</p>
+		</div>
+	</div>
+}

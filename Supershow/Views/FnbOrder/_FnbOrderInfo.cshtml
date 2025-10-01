@@ -1,0 +1,9 @@
+@model (int CurrentStep, Cinema Cinema)
+
+<div class="fnb-order-info-container">
+    <div class="fnb-order-progress-container">
+        <partial name="_Progress" model="@(new List<string> { "Select Food & Drinks", "Checkout" }, Model.CurrentStep)" />
+    </div>
+    <div class="fnb-order-info-text">Please note that food and drink purchases are valid for <strong>24 hours</strong>.
+        Make sure to redeem your order at the counter before it closes at <strong>@Model.Cinema.Name</strong></div>
+</div>

@@ -1,0 +1,62 @@
+@model ManageFnbInventoryVM
+
+@{
+    ViewBag.Title = "Manage F&B Inventory | Supershow";
+}
+
+<form class="container" data-ajax="true" data-ajax-update="#manage-results"
+    data-ajax-complete="closeOverlay('filter-overlay')">
+
+    <input asp-for="CinemaId" hidden />
+
+    <div id="filter-overlay" class="overlay">
+        <div class="content">
+            <div class="overlay-header">
+                <div class="title">Filter By</div>
+                <div class="overlay-close"></div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MinStockCount"></label>
+                <div class="form-input">
+                    <input asp-for="MinStockCount" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MaxStockCount"></label>
+                <div class="form-input">
+                    <input asp-for="MaxStockCount" />
+                </div>
+            </div>
+
+            <div class="button-group-inline">
+                <button type="button" data-button="outline" data-clear-form>Reset</button>
+                <button type="submit" data-button="yellow">Apply</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="container" data-manage-container="query">
+        <div class="title">Manage F&B Inventory - @ViewBag.CinemaName</div>
+        <div class="form-group">
+            <div class="input-group search-container">
+                <div class="form-input">
+                    <input data-clear-form-ignore asp-for="Search"/>
+                    <button type="submit"></button>
+                </div>
+                <div class="custom-select">
+                    <select asp-for="SearchOption" asp-items="Model.AvailableSearchOptions"></select>
+                </div>
+                <a href="@Url.Action("Add", new { cinemaId = Model.CinemaId })" data-button="blue">Add F&B Inventory</a>
+                <div id="filter" data-link>Filter by</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="manage-results" class="container" data-manage-container="table">
+        <partial name="_Manage" model="Model" />
+    </div>
+
+</form>

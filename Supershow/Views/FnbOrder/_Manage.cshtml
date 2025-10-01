@@ -1,0 +1,86 @@
+@model ManageFnbOrderVM
+
+@if (Model.Results.Count <= 0) 
+{
+    <partial name="_NoResults" model="@("No results found")" />
+}
+else 
+{
+    <table>
+        <thead>
+            <tr>
+                @foreach (var f in ViewBag.Fields) 
+                {
+                    var dir = "asc";
+                    if (f == Model.Sort)
+                    {
+                        dir = Model.Dir == "desc" ? "asc" : "desc";
+                    }
+
+                    <th class="@Model.Dir @(f == Model.Sort ? "selected" : "")">
+                        <a href="@Url.Action("Manage", new {
+                            CinemaId = Model.CinemaId,
+                            Dir = dir,
+                            Sort = f,
+                            Page = Model.Page,
+                            Search = Model.Search,
+                            SearchOption = Model.SearchOption,
+                            Statuses = Model.Statuses,
+                            MinItemsCount = Model.MinItemsCount,
+                            MaxItemsCount = Model.MaxItemsCount,
+                            CreationFrom = Model.CreationFrom?.ToString(),
+                            CreationTo = Model.CreationTo?.ToString()
+                        })"
+                        data-ajax="true"
+                        data-ajax-update="#manage-results">@f</a>
+                    </th>
+                }
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var o in Model.Results)
+            {
+                <tr>
+                    <td>@o.Id</td>
+                    <td>@o.AccountId</td>
+                    <td>
+                        <div class="status-text-container @o.Status.ToLower()">@o.Status</div>
+                    </td>
+                    <td>@o.FnbOrderItems.Sum(oi => oi.Quantity)</td>
+                    <td>@FormatService.ToDateTimeFormat(o.CreatedAt, "dd MMM yyyy - hh:mm tt")</td>
+                    <td>
+                        <div class="button-group-inline">
+                            <a href="@Url.Action("Edit", new {id = o.Id})" data-button="yellow">Edit</a>
+                            <a 
+                                data-ajax-url="@Url.Action("Cancel", new { id = o.Id })" data-button="red"
+                                data-ajax="true"
+                                data-ajax-method="POST"
+                                data-ajax-failure="defaultOnFailure"
+                                data-ajax-success="reloadPage()"
+                                data-ajax-confirm="Are you sure you want to cancel this order?"
+                            >Cancel</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @Html.PagedListPager(Model.Results,
+        page => Url.Action("Manage", new {
+            CinemaId = Model.CinemaId,
+            Dir = Model.Dir,
+            Sort = Model.Sort,
+            Page = page,
+            Search = Model.Search,
+            SearchOption = Model.SearchOption,
+            Statuses = Model.Statuses,
+            MinItemsCount = Model.MinItemsCount,
+            MaxItemsCount = Model.MaxItemsCount,
+            CreationFrom = Model.CreationFrom?.ToString(),
+            CreationTo = Model.CreationTo?.ToString()
+        }),
+        PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(ManagePageService.GetPagedOption(), ManagePageService.GetAjaxOption())
+    )
+}

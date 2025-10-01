@@ -1,0 +1,81 @@
+@model AddCinemaVM
+
+@{
+    ViewBag.Title = "Add Cinema | Supershow";
+}
+
+<form class="container info-container horizontal-center" method="post">
+    <div class="title">Add Cinema</div>
+    <div data-column-container="3">
+        <label asp-for="Name"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="Name">
+            </div>
+            <span asp-validation-for="Name"></span>
+        </div>
+
+        <label asp-for="Slug"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="Slug">
+            </div>
+            <span asp-validation-for="Slug"></span>
+        </div>
+
+        <label asp-for="Address"></label>
+        <div>:</div>
+        <div class="form-group">
+            <textarea asp-for="Address"></textarea>
+            <span asp-validation-for="Address"></span>
+        </div>
+
+        <label asp-for="State"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="input-group">
+                <div class="custom-select">
+                    <select asp-for="State" asp-items="Model.AvailableStates"></select>
+                </div>
+            </div>
+            <span asp-validation-for="State"></span>
+        </div>
+
+        <label asp-for="Latitude"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input type="number" asp-for="Latitude">
+            </div>
+            <span asp-validation-for="Latitude"></span>
+        </div>
+
+        <label asp-for="Longitude"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input type="number" asp-for="Longitude">
+            </div>
+            <span asp-validation-for="Longitude"></span>
+        </div>
+
+        <label asp-for="OperatingHours"></label>
+        <div>:</div>
+        <div class="form-group">
+            <textarea asp-for="OperatingHours"></textarea>
+            <span asp-validation-for="OperatingHours"></span>
+        </div>
+
+        <label asp-for="ContactNumber"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="ContactNumber">
+            </div>
+            <span asp-validation-for="ContactNumber"></span>
+        </div>
+    </div>
+    <button data-button="green">Create</button>
+</form>

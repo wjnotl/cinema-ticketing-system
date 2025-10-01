@@ -1,0 +1,173 @@
+@model MovieShowtimeVM
+
+@{
+    ViewBag.Title = "Movie Showtimes | Supershow";
+}
+
+@section head {
+    <style>
+        .banner-container>img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .banner-overlay-horizontal {
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(90deg, var(--background-color) 40%, transparent 100%);
+        }
+
+        .banner-overlay-vertical {
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(transparent 40%, var(--background-color) 100%);
+        }
+
+        .movie-container {
+            position: absolute;
+            inset: var(--content-width-margin);
+            width: 60%;
+            min-width: 600px;
+        }
+
+        .movie-container>img {
+            border-radius: 10px;
+            height: 90%;
+        }
+    </style>
+}
+
+<div class="banner-container">
+    <img
+        src="/uploads/@(string.IsNullOrEmpty(Model.Movie.Banner) ? $"poster/{Model.Movie.Poster}" : $"banner/{Model.Movie.Banner}")">
+    <div class="banner-overlay-horizontal"></div>
+    <div class="banner-overlay-vertical"></div>
+    <div class="movie-container">
+        <img src="/uploads/poster/@Model.Movie.Poster">
+        <div>
+            <h1>@Model.Movie.Title</h1>
+            <h3>
+                @string.Join(", ", Model.Movie.Genres.Select(g => g.Name))
+                &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
+                @FormatService.ToDurationFormat(Model.Movie.Duration)
+                &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
+                @Model.Movie.SpokenLanguage.Name
+            </h3>
+            <br>
+            <a href="/Movie/Info/@Model.Movie.Slug" data-button="outline">View Info</a>
+            @if (!string.IsNullOrEmpty(Model.Movie.Trailer))
+            {
+                <br>
+                <br>
+                <a href="@Model.Movie.Trailer" target="_blank" data-button="yellow">Watch Trailer</a>
+            }
+        </div>
+    </div>
+</div>
+
+<form class="container" style="margin-bottom: 80px !important;"
+    asp-action="Showtimes" method="get"
+    data-ajax="true"
+    data-ajax-update="#showtime-results"
+    data-ajax-complete="closeOverlay('filter-overlay')"
+>
+    <div id="filter-overlay" class="overlay">
+        <div class="content">
+            <div class="overlay-header">
+                <div class="title">Filter By</div>
+                <div class="overlay-close"></div>
+            </div>
+            <div class="overlay-body">
+                <div class="form-group">
+                    <label>Time</label>
+                    <div class="custom-tick-container center-text small-text rounded-border">
+                        @foreach (var time in Model.AvailableTimeFilters)
+                        {
+                            <label>
+                                <input type="checkbox" name="Times" value="@time.Id" @(Model.Times.Contains(time.Id) ?
+                                                                                                                     "checked" : "") />
+                                <div>
+                                    <div class="custom-tick-text">@time.Name</div>
+                                </div>
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Experience</label>
+                    <div class="custom-tick-container center-text small-text rounded-border">
+                        @foreach (var experience in Model.AvailableExperiences)
+                        {
+                            <label>
+                                <input type="checkbox" name="Experiences" value="@experience.Id"
+                                    @(Model.Experiences.Contains(experience.Id) ? "checked" : "") />
+                                <div>
+                                    <div class="custom-tick-text">@experience.Name</div>
+                                </div>
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <div class="button-group-inline">
+                    <button type="button" data-button="outline" data-clear-form>Reset</button>
+                    <button type="submit" data-button="yellow">Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Cinema == null || Model.AvailableCinemas.Count == 0 || Model.AvailableDateFilters.Count == 0)
+    {
+        <partial name="_NoResults" model="@("No Showtimes Found")" />
+    }
+    else
+    {
+        <div class="container showtime-date-listing-container">
+            @foreach (var date in Model.AvailableDateFilters)
+            {
+                <label data-selectable-title>
+                    <div class="day-text">@date.DayOfWeek</div>
+                    <div class="date-text">@FormatService.ToDateTimeFormat(date, "d MMM")</div>
+                    <input data-auto-submit data-clear-form-ignore type="radio" asp-for="Date" value="@date" hidden>
+                </label>
+            }
+        </div>
+
+        <div class="container showtime-container">
+            <div class="cinemas-container">
+                @foreach (var group in Model.AvailableCinemas)
+                {
+                    var state = group.Key;
+                    var cinemas = group.Value;
+                    var isCollapsed = cinemas.Any(c => c.Id == Model.Cinema.Id) ? "" : "collapsed";
+
+                    <div data-collapsible-toggle class="@isCollapsed">@state.Name</div>
+                    <div data-collapsible-content>
+                        @foreach (var cinema in cinemas)
+                        {
+                            <label class="cinema-box" data-selectable-title>
+                                @cinema.Name
+                                <input data-auto-submit data-clear-form-ignore type="radio" asp-for="CinemaId" value="@cinema.Id" hidden>
+                            </label>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div id="showtime-results" class="showtime-selection-container">
+                <partial name="_Showtimes" model="@(Model.Cinema, Model.Results)" />
+            </div>
+        </div>
+    }
+</form>
+
+@section foot {
+    <script>
+        $(document).on("click", "#showtime-filter", function () {
+            openOverlay("filter-overlay")
+        })
+    </script>
+}

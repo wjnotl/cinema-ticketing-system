@@ -1,0 +1,91 @@
+@model ManageHallVM
+
+@{
+    ViewBag.Title = "Manage Halls | Supershow";
+}
+
+<form class="container" data-ajax="true" data-ajax-update="#manage-results"
+    data-ajax-complete="closeOverlay('filter-overlay')">
+
+    <div id="filter-overlay" class="overlay">
+        <div class="content">
+            <div class="overlay-header">
+                <div class="title">Filter By</div>
+                <div class="overlay-close"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Experience</label>
+                <div class="custom-tick-container center-text small-text rounded-border">
+                    @foreach (var experience in Model.AvailableExperiences)
+                    {
+                        <label>
+                            <input type="checkbox" name="Experiences" value="@experience"
+                                @(Model.Experiences.Contains(experience) ? "checked" : "")>
+                            <div>
+                                <div class="custom-tick-text">@experience</div>
+                            </div>
+                        </label>
+                    }
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MinRowsCount"></label>
+                <div class="form-input">
+                    <input asp-for="MinRowsCount" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MaxRowsCount"></label>
+                <div class="form-input">
+                    <input asp-for="MaxRowsCount" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MinColumnsCount"></label>
+                <div class="form-input">
+                    <input asp-for="MinColumnsCount" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MaxColumnsCount"></label>
+                <div class="form-input">
+                    <input asp-for="MaxColumnsCount" />
+                </div>
+            </div>
+
+            <div class="button-group-inline">
+                <button type="button" data-button="outline" data-clear-form>Reset</button>
+                <button type="submit" data-button="yellow">Apply</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="container" data-manage-container="query">
+        <div class="title">Manage Halls - @ViewBag.CinemaName</div>
+        <div class="form-group">
+            <div class="input-group search-container">
+                <div class="form-input">
+                    <input data-clear-form-ignore asp-for="Search" />
+                    <button type="submit"></button>
+                </div>
+                <div class="custom-select">
+                    <select asp-for="SearchOption" asp-items="Model.AvailableSearchOptions"></select>
+                </div>
+                <a href="@Url.Action("Add", new { cinemaId = Model.CinemaId })" data-button="blue">Add Hall</a>
+
+                <div id="filter" data-link>Filter by</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="manage-results" class="container" data-manage-container="table">
+        <partial name="_Manage" model="Model" />
+    </div>
+
+</form>

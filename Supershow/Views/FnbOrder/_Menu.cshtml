@@ -1,0 +1,14 @@
+@model FnbMenuVM
+
+@if (Model.Results.Count == 0)
+{
+    <partial name="_NoResults" model="@(Model.CategoryId == 0 ? "Your cart is empty" : "No F&B Items found")" />
+}
+else
+{
+    foreach (var item in Model.Results)
+    {
+        var quantity = Model.FnbOrder.FnbOrderItems.Where(oi => oi.FnbItemVariant.FnbItemId == item.Id).Sum(oi => oi.Quantity);
+        <partial name="_FnbItem" model="@(item, quantity, Model.CategoryId, false)" />
+    }
+}

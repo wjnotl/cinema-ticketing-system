@@ -1,0 +1,77 @@
+@model ManageFnbInventoryVM
+
+@if (Model.Results.Count <= 0) 
+{
+    <partial name="_NoResults" model="@("No results found")" />
+}
+else 
+{
+    <table>
+        <thead>
+            <tr>
+                @foreach (var f in ViewBag.Fields) 
+                {
+                    var dir = "asc";
+                    if (f == Model.Sort)
+                    {
+                        dir = Model.Dir == "desc" ? "asc" : "desc";
+                    }
+
+                    <th class="@Model.Dir @(f == Model.Sort ? "selected" : "")">
+                        <a href="@Url.Action("Manage", new {
+                            CinemaId = Model.CinemaId,
+                            Dir = dir,
+                            Sort = f,
+                            Page = Model.Page,
+                            Search = Model.Search,
+                            SearchOption = Model.SearchOption,
+                            MinStockCount = Model.MinStockCount,
+                            MaxStockCount = Model.MaxStockCount
+                        })"
+                        data-ajax="true"
+                        data-ajax-update="#manage-results">@f</a>
+                    </th>
+                }
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var i in Model.Results)
+            {
+                <tr>
+                    <td>@i.FnbItemVariantId</td>
+                    <td>@i.FnbItemVariant.FnbItemId</td>
+                    <td>@i.Quantity</td>
+                    <td>
+                        <div class="button-group-inline">
+                            <a href="@Url.Action("Edit", new {CinemaId = Model.CinemaId, VariantId = i.FnbItemVariantId })" data-button="yellow">Edit</a>
+                            <a 
+                                data-ajax-url="@Url.Action("Delete", new {CinemaId = Model.CinemaId, VariantId = i.FnbItemVariantId })" data-button="red"
+                                data-ajax="true"
+                                data-ajax-method="POST"
+                                data-ajax-failure="defaultOnFailure"
+                                data-ajax-success="reloadPage()"
+                                data-ajax-confirm="Are you sure you want to delete this inventory item?"
+                            >Delete</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @Html.PagedListPager(Model.Results,
+        page => Url.Action("Manage", new {
+            CinemaId = Model.CinemaId,
+            Dir = Model.Dir,
+            Sort = Model.Sort,
+            Page = page,
+            Search = Model.Search,
+            SearchOption = Model.SearchOption,
+            MinStockCount = Model.MinStockCount,
+            MaxStockCount = Model.MaxStockCount
+        }),
+        PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(ManagePageService.GetPagedOption(), ManagePageService.GetAjaxOption())
+    )
+}
+

@@ -1,0 +1,64 @@
+@model (Cinema? Cinema, Dictionary<Experience, List<Showtime>> Results)
+
+@if (Model.Cinema != null)
+{
+    <div class="showtime-header-container">
+        <div class="showtime-selected-cinema-name">@Model.Cinema.Name</div>
+        <a href="/Cinema/Info/@Model.Cinema.Slug" class="showtime-info-button"></a>
+        <img src="/img/seat/green.png">
+        <div class="showtime-header-sales-info">Available</div>
+        <img src="/img/seat/yellow.png">
+        <div class="showtime-header-sales-info">Selling Fast</div>
+        <img src="/img/seat/red.png">
+        <div class="showtime-header-sales-info">Sold Out</div>
+        <div id="showtime-filter" data-link>Filter by</div>
+    </div>
+
+    <div class="showtime-body-container">
+        @if (Model.Results.Count > 0)
+        {
+            foreach (var group in Model.Results)
+            {
+                var experience = group.Key;
+                var showtimes = group.Value;
+
+                <div class="showtime-experience">
+                    <img src="/img/experience/@(experience.Name).png">
+                    <a href="/Experience/Info/@experience.Slug" class="showtime-info-button"></a>
+                </div>
+                <div class="showtime-time-container">
+                    @foreach (var showtime in showtimes)
+                    {
+                        int soldSeatsCount = showtime.Bookings
+                                                .Where(b => b.Status == "Confirmed")
+                                                .SelectMany(b => b.Tickets)
+                                                .Select(t=> t.SeatId)
+                                                .Distinct()
+                                                .Count();
+                        int availableSeatsCount = showtime.Hall.Seats.Count(s => !s.IsDeleted);
+
+                        string className = "";
+                        if (soldSeatsCount == availableSeatsCount)
+                        {
+                            className = "sold-out";
+                        }
+                        else if ((double)soldSeatsCount / availableSeatsCount >= 0.8)
+                        {
+                            className = "selling-fast";
+                        }
+
+                        <a href="/Booking/Create/@showtime.Id">
+                            <span class="@className">@FormatService.ToDateTimeFormat(showtime.StartTime, "hh:mm tt")</span>
+                        </a>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <partial name="_NoResults" model="@("No Showtimes Found")" />
+        }
+
+    </div>
+
+}

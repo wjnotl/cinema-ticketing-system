@@ -1,0 +1,89 @@
+@model string
+
+@{
+    ViewBag.Title = "Payment Status | Supershow";
+}
+
+@section head {
+    <style>
+        #payment-status-container {
+            width: max-content;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #payment-status-container .image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 100px;
+            font-weight: bold;
+        }
+
+        #payment-status-container.success .image {
+            background-color: #0f3d2e;
+        }
+
+        #payment-status-container.failed .image {
+            background-color: #3b0d0c;
+        }
+
+        #payment-status-container.success .image::after {
+            content: "✓";
+            color: #22c55e;
+        }
+
+        #payment-status-container.failed .image::after {
+            content: "✗";
+            color: #ef4444;
+        }
+
+        #payment-status-container.success .status-title::after {
+            content: "Success";
+            color: #22c55e;
+        }
+
+        #payment-status-container.failed .status-title::after {
+            content: "Unsuccessful";
+            color: #ef4444;
+        }
+
+        #payment-status-container .title {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: normal;
+            text-align: center;
+        }
+
+        #payment-status-container .status-title {
+            margin-top: 20px;
+            font-size: 40px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        #payment-status-container.success .title::after {
+            content: "Your payment was successful. Thank you for your support!";
+        }
+
+        #payment-status-container.failed .title::after {
+            content: "Your payment was unsuccessful. Hope to see you again soon!";
+        }
+
+        #home-button {
+            margin-top: 20px;
+        }
+    </style>
+}
+
+<div id="payment-status-container" class="container container-center @Model">
+    <div class="image"></div>
+    <div class="status-title"></div>
+    <div class="title"></div>
+
+    <a href="/" id="home-button" data-button="outline">Back to Homepage</a>
+</div>

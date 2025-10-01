@@ -1,0 +1,124 @@
+@model List<Device>
+
+@{
+    ViewBag.Title = "My Devices | Supershow";
+}
+
+@section head {
+    <style>
+        #device-container {
+            font-family: var(--secondary-font-family);
+        }
+
+        .device-container {
+            margin-bottom: 14px;
+        }
+
+        .device-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: var(--quaternary-color);
+            margin-bottom: 8px;
+        }
+
+        .device-group {
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.2);
+            margin-bottom: 10px;
+        }
+
+        .device-image {
+            width: 60px;
+            height: 60px;
+            background-size: 60%;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .device-image.computer {
+            background-image: url("/img/computer.png");
+        }
+
+        .device-image.phone {
+            background-image: url("/img/phone.png");
+        }
+
+        .device-image.tablet {
+            background-image: url("/img/tablet.png");
+        }
+
+        .device-info {
+            flex: 1;
+        }
+
+        .device-name {
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .device-detail {
+            font-size: 14px;
+            color: var(--quaternary-color);
+        }
+
+        .device-remove {
+            width: 25px;
+            height: 25px;
+            background-image: url("/img/cross.png");
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .device-remove:hover {
+            filter: brightness(0.5);
+        }
+
+        #no-device {
+            color: var(--dark-gray);
+            font-size: 14px;
+        }
+
+        .device-container:has(.device-group) #no-device {
+            display: none;
+        }
+
+        #logout-all-devices {
+            margin-top: 20px;
+            font-family: var(--secondary-font-family);
+            display: inline-block;
+        }
+    </style>
+}
+
+<div id="device-container" class="container">
+    <div class="title">My Devices</div>
+
+    <div class="device-container">
+        <div class="device-title">Current Device</div>
+        <div class="device-group">
+            <div class="device-image @ViewBag.DeviceType"></div>
+            <div class="device-info">
+                <div class="device-name">@ViewBag.DeviceOS · @ViewBag.DeviceBrowser</div>
+                <div class="device-detail">@ViewBag.DeviceAddress</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="other-devices" class="device-container">
+        <div class="device-title">Other Devices</div>
+        <div id="no-device">No other devices found</div>
+
+        <div id="device-group-container">
+            <partial name="_OtherDevice" model="Model">
+        </div>
+
+        <a data-ajax="true" data-ajax-url="/Account/LogoutAllDevices" data-ajax-method="post"
+            data-ajax-confirm="Are you sure you want to logout all known devices?" data-ajax-success="redirectToPage('/')"
+            id="logout-all-devices" data-button="red">Logout All Known Devices</a>
+    </div>
+</div>

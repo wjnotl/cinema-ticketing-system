@@ -1,0 +1,63 @@
+@model HistoryVM
+
+@{
+    ViewBag.Title = "History | Supershow";
+}
+
+@section head {
+    <style>
+        .history-container {
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .history-container .title {
+            font-size: 20px;
+        }
+
+        .history-container .timestamp {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .history-container .price {
+            font-size: 23px;
+            font-family: var(--secondary-font-family);
+            margin-top: 10px;
+            text-align: right;
+        }
+
+        .history-container .buttons-container {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .history-container .buttons-container>div {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+}
+
+<form class="container" data-center-items="column"
+    asp-action="History" method="get"
+    data-ajax="true" data-ajax-update="#history-list-container"
+>
+    <h1>History</h1>
+    <div class="custom-tick-container center-text center-items specified-width background">
+        @foreach (var option in Model.Options)
+        {
+            <label>
+                <input data-auto-submit type="radio" asp-for="Option" value="@option.Key">
+                <div class="custom-tick-text">@option.Value</div>
+            </label>
+        }
+    </div>
+</form>
+
+<div id="history-list-container" class="container" data-center-items="block">
+    <partial name="_History" model="@Model.Results"/>
+</div>

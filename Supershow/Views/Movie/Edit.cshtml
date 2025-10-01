@@ -1,0 +1,416 @@
+@model EditMovieVM
+
+@{
+    ViewBag.Title = "Edit Movie | Supershow";
+}
+
+@section head {
+    <style>
+        #poster-preview-container,
+        #banner-preview-container {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        #poster-preview-container:not(:has(img[src])),
+        #banner-preview-container:not(:has(img[src])) {
+            display: none;
+        }
+
+        #poster-preview,
+        #banner-preview {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #poster-preview.horizontal-fit,
+        #banner-preview.horizontal-fit {
+            width: 100%;
+            object-fit: contain;
+        }
+
+        #poster-preview.vertical-fit,
+        #banner-preview.vertical-fit {
+            height: 100%;
+            object-fit: contain;
+        }
+    </style>
+}
+
+<form class="container info-container horizontal-center" enctype="multipart/form-data" method="post">
+    <input asp-for="Id" hidden>
+    <input asp-for="CreatedAt" hidden>
+
+    <div class="title">Movie Details</div>
+    <div data-column-container="3">
+        <div>Id</div>
+        <div>:</div>
+        <div>@Model.Id</div>
+
+        <div>Creation Time</div>
+        <div>:</div>
+        <div>@FormatService.ToDateTimeFormat(Model.CreatedAt, "dd MMM yyyy - hh:mm tt")</div>
+
+        <label asp-for="Title"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="Title">
+            </div>
+            <span asp-validation-for="Title"></span>
+        </div>
+
+        <label asp-for="Slug"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="Slug">
+            </div>
+            <span asp-validation-for="Slug"></span>
+        </div>
+
+        <label asp-for="ReleaseDate"></label>
+        <div>:</div>
+        <div class="form-group">
+            <input asp-for="ReleaseDate">
+            <span asp-validation-for="ReleaseDate"></span>
+        </div>
+
+        <label asp-for="Duration">Duration (minutes)</label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                @if (Model.HasActiveShowtimes)
+                {
+                    <input asp-for="Duration" readonly>
+                } else {
+                    <input asp-for="Duration">
+                }
+            </div>
+            @if (Model.HasActiveShowtimes)
+            {
+                <span class="warn-message">*Note: Duration cannot be edited while active showtimes for this movie exist</span>
+            }
+            <span asp-validation-for="Duration"></span>
+        </div>
+
+        <label asp-for="Director"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="Director">
+            </div>
+            <span asp-validation-for="Director"></span>
+        </div>
+
+        <label asp-for="Cast"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="Cast">
+            </div>
+            <span asp-validation-for="Cast"></span>
+        </div>
+
+        <label asp-for="Synopsis"></label>
+        <div>:</div>
+        <div class="form-group">
+            <textarea asp-for="Synopsis"></textarea>
+            <span asp-validation-for="Synopsis"></span>
+        </div>
+
+        <label asp-for="Trailer"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input asp-for="Trailer">
+            </div>
+            <span asp-validation-for="Trailer"></span>
+        </div>
+
+        <label asp-for="Price">Price (RM)</label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input type="number" data-rm-format asp-for="Price">
+            </div>
+            <span asp-validation-for="Price"></span>
+        </div>
+
+        <label asp-for="Status"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="input-group">
+                <div class="custom-select">
+                    <select asp-for="Status" asp-items="Model.AvailableStatuses"></select>
+                </div>
+            </div>
+            <span asp-validation-for="Status"></span>
+        </div>
+
+        <label asp-for="SpokenLanguage"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="input-group">
+                <div class="custom-select">
+                    <select asp-for="SpokenLanguage" asp-items="Model.AvailableSpokenLanguages"></select>
+                </div>
+            </div>
+            <span asp-validation-for="SpokenLanguage"></span>
+        </div>
+
+        <label asp-for="Classification"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="input-group">
+                <div class="custom-select">
+                    <select asp-for="Classification" asp-items="Model.AvailableClassifications"></select>
+                </div>
+            </div>
+            <span asp-validation-for="Classification"></span>
+        </div>
+
+        <label>Subtitle</label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="custom-tick-container center-text small-text rounded-border">
+                @foreach (var subtitle in Model.AvailableSubtitles)
+                {
+                    <label>
+                        <input type="checkbox" name="Subtitles" value="@subtitle.Id" @(Model.Subtitles.Contains(subtitle.Id) ?
+                                                                                                         "checked" : "")>
+                        <div>
+                            <div class="custom-tick-text">@subtitle.Name</div>
+                        </div>
+                    </label>
+                }
+            </div>
+            <span asp-validation-for="Subtitles"></span>
+        </div>
+
+        <label>Genre</label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="custom-tick-container center-text small-text rounded-border">
+                @foreach (var genre in Model.AvailableGenres)
+                {
+                    <label>
+                        <input type="checkbox" name="Genres" value="@genre.Id" @(Model.Genres.Contains(genre.Id) ?
+                                                                                                         "checked" : "")>
+                        <div>
+                            <div class="custom-tick-text">@genre.Name</div>
+                        </div>
+                    </label>
+                }
+            </div>
+            <span asp-validation-for="Genres"></span>
+        </div>
+
+        <label asp-for="PosterImage"></label>
+        <div>:</div>
+        <div class="form-group">
+            <input type="file" id="poster-image-file" asp-for="PosterImage" accept="image/jpeg, image/png" hidden />
+            <input id="poster-image-x" asp-for="PosterImageX" hidden>
+            <input id="poster-image-y" asp-for="PosterImageY" hidden>
+            <input id="poster-image-scale" asp-for="PosterImageScale" hidden>
+            <input asp-for="PosterPreviewWidth" hidden>
+            <input asp-for="PosterPreviewHeight" hidden>
+
+            <div id="poster-preview-container"
+                    style="width: @(Model.PosterPreviewWidth)px; height: @(Model.PosterPreviewHeight)px">
+                <img id="poster-preview" src="/uploads/poster/@ViewBag.PosterImageUrl" class="vertical-fit" />
+            </div>
+
+            <div class="form-group">
+                <span asp-validation-for="PosterImage"></span>
+            </div>
+
+            <div class="button-group-inline">
+                <button type="button" id="upload-poster-image-button" data-button="yellow">Upload</button>
+                <button type="button" id="reset-poster-image-button" data-button="blue" disabled>Reset</button>
+            </div>
+        </div>
+
+        <label asp-for="BannerImage"></label>
+        <div>:</div>
+        <div class="form-group">
+            <input type="file" id="banner-image-file" asp-for="BannerImage" accept="image/jpeg, image/png" hidden />
+            <input id="remove-banner-image-checkbox" asp-for="RemoveBannerImage" hidden />
+            <input id="banner-image-x" asp-for="BannerImageX" hidden>
+            <input id="banner-image-y" asp-for="BannerImageY" hidden>
+            <input id="banner-image-scale" asp-for="BannerImageScale" hidden>
+            <input asp-for="BannerPreviewWidth" hidden>
+            <input asp-for="BannerPreviewHeight" hidden>
+
+            <div id="banner-preview-container"
+                    style="width: @(Model.BannerPreviewWidth)px; height: @(Model.BannerPreviewHeight)px">
+                <img id="banner-preview" @(ViewBag.BannerImageUrl == null ? "" : $"src=/uploads/banner/{ViewBag.BannerImageUrl}") class="vertical-fit" />
+            </div>
+
+            <div class="form-group">
+                <span asp-validation-for="BannerImage"></span>
+            </div>
+
+            <div class="button-group-inline">
+                <button type="button" id="upload-banner-image-button" data-button="yellow">Upload</button>
+                <button type="button" id="remove-banner-image-button" data-button="red" @(ViewBag.BannerImageUrl == null ? "disabled" : "")>Remove</button>
+                <button type="button" id="reset-banner-image-button" data-button="blue" disabled>Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <button data-button="green">Save Changes</button>
+</form>
+
+<div id="poster-upload-overlay" class="overlay upload-overlay">
+    <div class="content">
+        <div class="overlay-header">
+            <div class="title">Upload Image</div>
+            <div class="overlay-close"></div>
+        </div>
+        <div class="overlay-body">
+            <div class="upload-drop-zone" class="show">
+                <div>Drag and drop your image here or click to select</div>
+            </div>
+            <div class="upload-preview-zone">
+                <div class="upload-preview-container" class="show">
+                    <img class="upload-preview-image" draggable="false" />
+                </div>
+                <input type="range" class="zoom-slider" min="1" max="2" step="0.01" />
+                <button class="confirm-upload" data-button="yellow">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="banner-upload-overlay" class="overlay upload-overlay">
+    <div class="content">
+        <div class="overlay-header">
+            <div class="title">Upload Image</div>
+            <div class="overlay-close"></div>
+        </div>
+        <div class="overlay-body">
+            <div class="upload-drop-zone" class="show">
+                <div>Drag and drop your image here or click to select</div>
+            </div>
+            <div class="upload-preview-zone">
+                <div class="upload-preview-container" class="show">
+                    <img class="upload-preview-image" draggable="false" />
+                </div>
+                <input type="range" class="zoom-slider" min="1" max="2" step="0.01" />
+                <button class="confirm-upload" data-button="yellow">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container info-container horizontal-center">
+    <div class="title">Action</div>
+    <div class="action-button-container">
+        <a data-button="red" data-ajax="true" data-ajax-url="@Url.Action("Delete", new { id = Model.Id })"
+            data-ajax-method="POST" data-ajax-failure="defaultOnFailure"
+            data-ajax-success="redirectToPage('@Url.Action("Manage")')"
+            data-ajax-confirm="Are you sure you want to delete this movie?">Delete Movie</a>
+    </div>
+</div>
+
+@section foot {
+    <script>
+        const originalPosterSrc = $("#poster-preview").attr("src")
+        const posterUploadOverlay = new UploadOverlay("#poster-image-file", @Model.PosterPreviewWidth, @Model.PosterPreviewHeight, "#poster-upload-overlay")
+
+        $("#upload-poster-image-button").on("click", async function () {
+            const uploadResult = await posterUploadOverlay.open()
+            if (uploadResult) {
+                if (uploadResult.horizontalFit) {
+                    $("#poster-preview").addClass("horizontal-fit")
+                    $("#poster-preview").removeClass("vertical-fit")
+                } else {
+                    $("#poster-preview").addClass("vertical-fit")
+                    $("#poster-preview").removeClass("horizontal-fit")
+                }
+
+                $("#poster-preview").attr("src", uploadResult.src)
+                $("#poster-image-x").val(uploadResult.imgX)
+                $("#poster-image-y").val(uploadResult.imgY)
+                $("#poster-image-scale").val(uploadResult.scale)
+                updateImagePreview("#poster-preview", $("#poster-image-x").val(), $("#poster-image-y").val(), $("#poster-image-scale").val())
+
+                $("#reset-poster-image-button").prop("disabled", false)
+            }
+        })
+
+        $("#reset-poster-image-button").on("click", async function () {
+            $("#poster-image-file").val("") // remove file input value
+
+            $("#poster-image-x").val(0)
+            $("#poster-image-y").val(0)
+            $("#poster-image-scale").val(1)
+            updateImagePreview("#poster-preview", $("#poster-image-x").val(), $("#poster-image-y").val(), $("#poster-image-scale").val())
+
+            $("#poster-preview").attr("src", originalPosterSrc)
+            $("#poster-preview").addClass("vertical-fit")
+            $("#poster-preview").removeClass("horizontal-fit")
+
+            $("#reset-poster-image-button").prop("disabled", true)
+        })
+
+        const originalBannerSrc = $("#banner-preview").attr("src")
+        const bannerUploadOverlay = new UploadOverlay("#banner-image-file", @Model.BannerPreviewWidth, @Model.BannerPreviewHeight, "#banner-upload-overlay");
+        const noBannerImage = originalBannerSrc == null
+
+        $("#upload-banner-image-button").on("click", async function () {
+            const uploadResult = await bannerUploadOverlay.open()
+            if (uploadResult) {
+                if (uploadResult.horizontalFit) {
+                    $("#banner-preview").addClass("horizontal-fit")
+                    $("#banner-preview").removeClass("vertical-fit")
+                } else {
+                    $("#banner-preview").addClass("vertical-fit")
+                    $("#banner-preview").removeClass("horizontal-fit")
+                }
+
+                $("#banner-preview").attr("src", uploadResult.src)
+                $("#banner-image-x").val(uploadResult.imgX)
+                $("#banner-image-y").val(uploadResult.imgY)
+                $("#banner-image-scale").val(uploadResult.scale)
+                updateImagePreview("#banner-preview", $("#banner-image-x").val(), $("#banner-image-y").val(), $("#banner-image-scale").val())
+
+                $("#remove-banner-image-checkbox").prop("checked", false)
+                $("#remove-banner-image-button").prop("disabled", false)
+                $("#reset-banner-image-button").prop("disabled", false)
+            }
+        })
+
+        $("#reset-banner-image-button").on("click", async function () {
+            $("#banner-image-file").val("") // remove file input value
+
+            $("#banner-image-x").val(0)
+            $("#banner-image-y").val(0)
+            $("#banner-image-y").val(1)
+            updateImagePreview("#banner-preview", $("#banner-image-x").val(), $("#banner-image-y").val(), $("#banner-image-y").val())
+
+            $("#banner-preview").attr("src", originalBannerSrc)
+            $("#banner-preview").addClass("vertical-fit")
+            $("#banner-preview").removeClass("horizontal-fit")
+
+            $("#remove-banner-image-checkbox").prop("checked", false)
+            $("#remove-banner-image-button").prop("disabled", noBannerImage)
+            $("#reset-banner-image-button").prop("disabled", true)
+        })
+
+        $("#remove-banner-image-button").on("click", async function () {
+            if (await confirmation("Are you sure you want to remove your profile picture?", "Yes")) {
+                $("#remove-banner-image-checkbox").prop("checked", !noBannerImage)
+                $("#remove-banner-image-button").prop("disabled", true)
+                $("#reset-banner-image-button").prop("disabled", noBannerImage)
+
+                $("#banner-preview").css("transform", "")
+                $("#banner-preview").removeAttr("src")
+            }
+        })
+    </script>
+}

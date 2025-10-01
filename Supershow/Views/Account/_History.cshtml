@@ -1,0 +1,86 @@
+@model List<object>
+
+@if (Model.Count == 0)
+{
+    <partial name="_NoResults" model="@("No history found")" />
+}
+else
+{
+    @foreach (var item in Model)
+    {
+        string titleStr = "",
+        statusStr = "",
+        timestampStr = "",
+        priceStr = "",
+        continueStr = "",
+        infoStr = "",
+        payStr = "",
+        cancelStr = "",
+        cancelConfirmationStr = "";
+
+        if (item is Booking booking)
+        {
+            titleStr = $"Booking #{booking.Id}";
+            statusStr = booking.Status;
+            timestampStr = FormatService.ToDateTimeFormat(booking.CreatedAt, "dd MMM yyyy - hh:mm:ss tt");
+            priceStr = FormatService.ToRMFormat(booking.Tickets.Sum(t => t.Price));
+            continueStr = "/Booking/Seats/" + booking.Id;
+            infoStr = "/Booking/Info/" + booking.Id;
+            cancelStr = "/Booking/Cancel/" + booking.Id;
+            cancelConfirmationStr = "Are you sure you want to cancel this booking?";
+            if (booking.Payment != null)
+            {
+                payStr = "/Payment/Process/" + booking.Payment.Id;
+            }
+        }
+        else if (item is FnbOrder order)
+        {
+            titleStr = $"F&B Order #{order.Id}";
+            statusStr = order.Status;
+            timestampStr = FormatService.ToDateTimeFormat(order.CreatedAt, "dd MMM yyyy - hh:mm:ss tt");
+            priceStr = FormatService.ToRMFormat(order.FnbOrderItems.Sum(o => o.Price));
+            continueStr = "/FnbOrder/Menu/" + order.Id;
+            infoStr = "/FnbOrder/Info/" + order.Id;
+            cancelStr = "/FnbOrder/Cancel/" + order.Id;
+            cancelConfirmationStr = "Are you sure you want to cancel this order?";
+            if (order.Payment != null)
+            {
+                payStr = "/Payment/Process/" + order.Payment.Id;
+            }
+        }
+        else
+        {
+            continue;
+        }
+
+        <div class="history-container">
+            <span class="title">@titleStr</span>
+            <span class="float-right status-text-container @statusStr.ToLower()">@statusStr</span>
+            <div class="timestamp">@timestampStr</div>
+            <div class="price">@priceStr</div>
+            <div class="buttons-container">
+                <div>
+                    @if (statusStr != "Pending")
+                    {
+                        <a href="@infoStr" data-button="blue">Details</a>
+                    }
+                </div>
+                <div>
+                    @if (statusStr == "Pending" || statusStr == "Unpaid" || statusStr == "Confirmed")
+                    {
+                        <a href="@cancelStr" data-button="red" data-ajax="true" data-ajax-method="POST"
+                            data-ajax-confirm="@cancelConfirmationStr" data-ajax-failure="defaultOnFailure" data-ajax-complete="reloadPage()">Cancel</a>
+                    }
+                    @if (statusStr == "Unpaid")
+                    {
+                        <a href="@payStr" data-button="yellow">Pay</a>
+                    }
+                    @if (statusStr == "Pending")
+                    {
+                        <a href="@continueStr" data-button="yellow">Continue</a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}

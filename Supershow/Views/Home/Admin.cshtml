@@ -1,0 +1,280 @@
+@{
+    ViewBag.Title = "Admin Home | Supershow";
+}
+
+@section head {
+    <style>
+        #home-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 100px;
+        }
+
+        .admin-home-container {
+            margin: 0;
+            flex: 1;
+            width: max-content;
+            overflow: visible;
+            height: auto;
+
+        }
+
+        .admin-home-container canvas {
+            max-height: 400px;
+        }
+
+        .admin-home-container .title {
+            text-align: center;
+        }
+    </style>
+}
+
+<div id="home-container" class="container">
+    <div class="admin-home-container">
+        <div class="title">New Customers (Past 8 months)</div>
+        <canvas id="new-customers" width="710" height="400"></canvas>
+    </div>
+
+    <div class="admin-home-container">
+        <div class="title">Login Devices</div>
+        <canvas id="login-devices"></canvas>
+    </div>
+
+    <div class="admin-home-container">
+        <div class="title">Booking Frequency (Past 8 months)</div>
+        <canvas id="booking-frequency" width="710" height="400"></canvas>
+    </div>
+
+    <div class="admin-home-container">
+        <div class="title">Booking Status</div>
+        <canvas id="booking-status"></canvas>
+    </div>
+
+    <div class="admin-home-container">
+        <div class="title">Order Frequency (Past 8 months)</div>
+        <canvas id="order-frequency" width="710" height="400"></canvas>
+    </div>
+
+    <div class="admin-home-container">
+        <div class="title">Order Status</div>
+        <canvas id="order-status"></canvas>
+    </div>
+</div>
+
+@section foot {
+    <script src="/js/chart.min.js"></script>
+    <script>
+        new Chart($("#new-customers")[0].getContext("2d"), {
+            type: "line",
+            data: {
+                labels: Array.from(@Html.Raw(Json.Serialize(ViewBag.Past8Months))),
+                datasets: [
+                    {
+                        label: " Customers",
+                        data: Array.from(@Html.Raw(Json.Serialize(ViewBag.NewCustomers))),
+                        borderColor: "#ffbb00",
+                        borderWidth: 3,
+                        tension: 0.35
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        type: "linear",
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: "Customers",
+                            color: "white"
+                        },
+                        ticks: {
+                            color: "white"
+                        },
+                        grid: {
+                            color: "#cccccc"
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: "white"
+                        },
+                        grid: {
+                            color: "#cccccc"
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        })
+
+        new Chart($("#login-devices")[0].getContext("2d"), {
+            type: "pie",
+            data: {
+                labels: Array.from(@Html.Raw(Json.Serialize(ViewBag.AvailableDevices))),
+                datasets: [
+                    {
+                        label: " Login Count",
+                        data: Array.from(@Html.Raw(Json.Serialize(ViewBag.DevicesCount))),
+                        backgroundColor: ["#ffe066", "#ffbb00", "#cc9600"]
+                    }
+                ]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: "white"
+                        }
+                    }
+                }
+            }
+        })
+
+        new Chart($("#booking-frequency")[0].getContext("2d"), {
+            type: "line",
+            data: {
+                labels: Array.from(@Html.Raw(Json.Serialize(ViewBag.Past8Months))),
+                datasets: [
+                    {
+                        label: " Bookings",
+                        data: Array.from(@Html.Raw(Json.Serialize(ViewBag.NewBookings))),
+                        borderColor: "#ffbb00",
+                        borderWidth: 3,
+                        tension: 0.35
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        type: "linear",
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: "Bookings",
+                            color: "white"
+                        },
+                        ticks: {
+                            color: "white"
+                        },
+                        grid: {
+                            color: "#cccccc"
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: "white"
+                        },
+                        grid: {
+                            color: "#cccccc"
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        })
+
+        new Chart($("#booking-status")[0].getContext("2d"), {
+            type: "pie",
+            data: {
+                labels: Array.from(@Html.Raw(Json.Serialize(ViewBag.AvailableStatuses))),
+                datasets: [
+                    {
+                        label: " Bookings",
+                        data: Array.from(@Html.Raw(Json.Serialize(ViewBag.BookingStatuses))),
+                        backgroundColor: ["#ffe066", "#ffbb00", "#cc9600", "#806000"]
+                    }
+                ]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: "white"
+                        }
+                    }
+                }
+            }
+        })
+
+        new Chart($("#order-frequency")[0].getContext("2d"), {
+            type: "line",
+            data: {
+                labels: Array.from(@Html.Raw(Json.Serialize(ViewBag.Past8Months))),
+                datasets: [
+                    {
+                        label: " Orders",
+                        data: Array.from(@Html.Raw(Json.Serialize(ViewBag.NewOrders))),
+                        borderColor: "#ffbb00",
+                        borderWidth: 3,
+                        tension: 0.35
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        type: "linear",
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: "Orders",
+                            color: "white"
+                        },
+                        ticks: {
+                            color: "white"
+                        },
+                        grid: {
+                            color: "#cccccc"
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: "white"
+                        },
+                        grid: {
+                            color: "#cccccc"
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        })
+
+        new Chart($("#order-status")[0].getContext("2d"), {
+            type: "pie",
+            data: {
+                labels: Array.from(@Html.Raw(Json.Serialize(ViewBag.AvailableStatuses))),
+                datasets: [
+                    {
+                        label: " Orders",
+                        data: Array.from(@Html.Raw(Json.Serialize(ViewBag.OrderStatuses))),
+                        backgroundColor: ["#ffe066", "#ffbb00", "#cc9600", "#806000"]
+                    }
+                ]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: "white"
+                        }
+                    }
+                }
+            }
+        })
+    </script>
+}

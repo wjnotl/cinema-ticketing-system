@@ -1,0 +1,59 @@
+@model Hall
+
+<div class="seat-row side-column-row">
+    <div class="side-alphabet"></div>
+
+    <div class="seat-column-gap" data-add-column="0"></div>
+    @for (int i = 0; i < Model.TotalColumns; i++)
+    {
+        <div data-column-number="@i" class="side-number">@(i + 1)</div>
+        <div class="seat-column-gap" data-add-column="@(i + 1)"></div>
+    }
+    <div class="side-alphabet"></div>
+</div>
+
+<div class="seat-row-gap" data-add-row="0"></div>
+@for (int i = 0; i < Model.TotalRows; i++)
+{
+    var rowAlphabet = (char)('A' + i);
+
+    <div class="seat-row">
+        <div data-row-number="@i" class="side-alphabet">@rowAlphabet</div>
+        @for (int j = 0; j < Model.TotalColumns; j++)
+        {
+            var seat = Model.Seats.FirstOrDefault(s => s.Row == i && s.ColumnsList.Contains(j) && !s.IsDeleted);
+            var nextSeat = Model.Seats.FirstOrDefault(s => s.Row == i && s.ColumnsList.Contains(j + 1) && !s.IsDeleted);
+
+            if (seat == null)
+            {
+                <button type="button" class="seat" data-row="@i" data-column="@j" data-single-select @(nextSeat == null && j != Model.TotalColumns - 1 ? "data-twin-select" : "")></button>
+                continue;
+            }
+
+            if (seat.SeatType.ColumnSpan > 1 && seat.ColumnsList[0] != j)
+            {
+                continue;
+            }
+
+            var className = "seat";
+            className += seat.SeatType.ColumnSpan == 1 ? " single" : " twin";
+
+            <button type="button" data-seat-id="@seat.Id" class="@className"></button>
+        }
+        <div data-row-number="@i" class="side-alphabet">@rowAlphabet</div>
+    </div>
+
+    <div class="seat-row-gap" data-add-row="@(i + 1)"></div>
+}
+
+<div class="seat-row side-column-row">
+    <div class="side-alphabet"></div>
+
+    <div class="seat-column-gap" data-add-row="0"></div>
+    @for (int i = 0; i < Model.TotalColumns; i++)
+    {
+        <div data-column-number="@i" class="side-number">@(i + 1)</div>
+        <div class="seat-column-gap" data-add-row="@(i + 1)"></div>
+    }
+    <div class="side-alphabet"></div>
+</div>

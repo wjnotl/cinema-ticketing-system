@@ -1,0 +1,39 @@
+@model Dictionary<State, List<Cinema>>
+
+@{
+    bool init = false;
+}
+
+@if (Model.Count == 0)
+{
+    <partial name="_NoResults" model="@("There are no cinemas available")" />
+}
+else
+{
+    <div class="container select-cinemas-container horizontal-center" data-center-items="column">
+        <img src="/img/screen_play.png">
+        <h1>SELECT A CINEMA</h1>
+    </div>
+
+    <div class="container select-cinemas-container horizontal-center">
+        @foreach (var group in Model)
+        {
+            var state = group.Key;
+            var cinemas = group.Value;
+            var isCollapsed = init ? "collapsed" : "";
+            init = true;
+
+            <div data-collapsible-toggle class="@isCollapsed">@state.Name</div>
+            <div data-collapsible-content class="custom-tick-container center-text background">
+                @foreach (var cinema in cinemas)
+                {
+                    <a href="?CinemaId=@cinema.Id">
+                        <label>
+                            <div class="custom-tick-text">@cinema.Name</div>
+                        </label>
+                    </a>
+                }
+            </div>
+        }
+    </div>
+}

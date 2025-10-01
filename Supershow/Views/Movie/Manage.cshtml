@@ -1,0 +1,94 @@
+@model ManageMovieVM
+
+@{
+    ViewBag.Title = "Manage Movies | Supershow";
+}
+
+@section head {
+    <style>
+        .status-text-container.active {
+            background-color: var(--status-green-background-color);
+        }
+
+        .status-text-container.inactive {
+            background-color: var(--status-red-background-color);
+        }
+    </style>
+}
+
+<form class="container" data-ajax="true" data-ajax-update="#manage-results"
+    data-ajax-complete="closeOverlay('filter-overlay')">
+
+    <div id="filter-overlay" class="overlay">
+        <div class="content">
+            <div class="overlay-header">
+                <div class="title">Filter By</div>
+                <div class="overlay-close"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Status</label>
+                <div class="custom-tick-container center-text small-text rounded-border">
+                    @foreach (var status in Model.AvailableStatuses)
+                    {
+                        <label>
+                            <input type="checkbox" name="Statuses" value="@status"
+                                @(Model.Statuses.Contains(status) ? "checked" : "")>
+                            <div>
+                                <div class="custom-tick-text">@status</div>
+                            </div>
+                        </label>
+                    }
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ReleaseFrom"></label>
+                <input asp-for="ReleaseFrom" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ReleaseTo"></label>
+                <input asp-for="ReleaseTo" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CreationFrom"></label>
+                <input asp-for="CreationFrom" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CreationTo"></label>
+                <input asp-for="CreationTo" />
+            </div>
+
+            <div class="button-group-inline">
+                <button type="button" data-button="outline" data-clear-form>Reset</button>
+                <button type="submit" data-button="yellow">Apply</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="container" data-manage-container="query">
+        <div class="title">Manage Movies</div>
+        <div class="form-group">
+            <div class="input-group search-container">
+                <div class="form-input">
+                    <input data-clear-form-ignore asp-for="Search"/>
+                    <button type="submit"></button>
+                </div>
+                <div class="custom-select">
+                    <select asp-for="SearchOption" asp-items="Model.AvailableSearchOptions"></select>
+                </div>
+                <a href="@Url.Action("Add")" data-button="blue">Add Movie</a>
+                <div id="filter" data-link>Filter by</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="manage-results" class="container" data-manage-container="table">
+        <partial name="_Manage" model="Model" />
+    </div>
+
+</form>

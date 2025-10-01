@@ -1,0 +1,72 @@
+@model AddShowtimeVM
+
+@{
+    ViewBag.Title = "Add Showtime | Supershow";
+}
+
+<form class="container info-container horizontal-center" method="post">
+    <input asp-for="CinemaId" hidden>
+
+    <div class="title">Add Showtime</div>
+    <div data-column-container="3">
+        <label asp-for="MovieId"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="input-group">
+                <div class="custom-select">
+                    <select id="movie-id" asp-for="MovieId" asp-items="Model.AvailableMovies"></select>
+                </div>
+            </div>
+            <span asp-validation-for="MovieId"></span>
+        </div>
+
+
+        <label asp-for="HallId"></label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="input-group">
+                <div class="custom-select">
+                    <select asp-for="HallId" asp-items="Model.AvailableHalls"></select>
+                </div>
+            </div>
+            <span asp-validation-for="HallId"></span>
+        </div>
+
+
+        <label asp-for="StartTime"></label>
+        <div>:</div>
+        <div class="form-group">
+            <input id="start-time" asp-for="StartTime">
+            <span asp-validation-for="StartTime"></span>
+        </div>
+
+
+        <label>End Time</label>
+        <div>:</div>
+        <div id="end-time">
+            <partial name="_EndTime" model="@((DateTime?)Model.StartTime, (int?)0)" />
+        </div>
+    </div>
+
+    <button data-button="green">Create</button>
+</form>
+
+@section foot {
+    <script>
+        function updateEndTime() {
+            var movieId = $("#movie-id").val()
+
+            $.ajax({
+                url: "@Url.Action("GetEndTime")",
+                method: "GET",
+                data: { startTime: $("#start-time").val().toString(), movieId: movieId },
+                success: function (data) {
+                    $("#end-time").html(data)
+                }
+            })
+        }
+
+        $("#movie-id").on("change", updateEndTime)
+        $("#start-time").on("change", updateEndTime)
+    </script>
+}

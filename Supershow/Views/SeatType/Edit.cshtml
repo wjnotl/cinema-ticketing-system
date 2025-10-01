@@ -1,0 +1,45 @@
+@model EditSeatTypeVM
+
+@{
+    ViewBag.Title = "Edit Seat Type | Supershow";
+}
+
+<form class="container info-container horizontal-center" method="post">
+    <input asp-for="Id" hidden />
+    <input asp-for="Name" hidden />
+    <input asp-for="ColumnSpan" hidden />
+
+    <div class="title">Seat Type Details</div>
+    <div data-column-container="3">
+        <div>Id</div>
+        <div>:</div>
+        <div>@Model.Id</div>
+
+        <div>Name</div>
+        <div>:</div>
+        <div>@Model.Name</div>
+
+        <div>Column Span</div>
+        <div>:</div>
+        <div>@Model.ColumnSpan</div>
+
+        <label asp-for="Price">Price (RM)</label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input type="number" data-rm-format asp-for="Price">
+            </div>
+            <span asp-validation-for="Price"></span>
+        </div>
+
+        <label asp-for="WeekendPrice">Weekend Price (RM)</label>
+        <div>:</div>
+        <div class="form-group">
+            <div class="form-input">
+                <input type="number" data-rm-format asp-for="WeekendPrice">
+            </div>
+            <span asp-validation-for="WeekendPrice"></span>
+        </div>
+    </div>
+    <button data-button="green">Save Changes</button>
+</form>

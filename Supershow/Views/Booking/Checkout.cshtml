@@ -1,0 +1,59 @@
+@model Booking
+
+@{
+    ViewBag.Title = "Booking Checkout | Supershow";
+}
+
+@section head {
+    <style>
+        .seat-container>*:has(img) {
+            width: 80px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .seat-container img {
+            height: 30px;
+        }
+    </style>
+}
+
+<partial name="_ShowtimeInfo" model="(2, Model.Showtime)" />
+
+<div class="container info-container horizontal-center">
+    <div class="title">Selected Seat@(Model.Tickets.Count > 1 ? "s" : "")</div>
+
+    @foreach (var ticket in Model.Tickets)
+    {
+        <div class="content-container seat-container" data-column-container="2">
+            <div>
+                <img src="/img/seat/@(ticket.Seat.SeatType.ColumnSpan == 1 ? "single" : "twin").png">
+            </div>
+            <div data-column-container="3">
+                <div>Seat</div>
+                <div>:</div>
+                <div>@ticket.Seat.Name</div>
+                <div>Type</div>
+                <div>:</div>
+                <div>@ticket.Seat.SeatType.Name</div>
+                <div>Price</div>
+                <div>:</div>
+                <div>@FormatService.ToRMFormat(ticket.Price)</div>
+            </div>
+        </div>
+    }
+</div>
+
+<form data-expired-timestamp="@ViewBag.ExpiredTimestamp" id="summary-container" method="post">
+    <div class="summary-info">
+        <div class="price">@FormatService.ToRMFormat(ViewBag.TotalTicketPrice)</div>
+        <span>-</span>
+        <div>@Model.Tickets.Count Seat@(Model.Tickets.Count > 1 ? "s" : "")</div>
+    </div>
+    <div>
+        <a data-expired-disable data-button="blue" href="/Booking/Seats/@Model.Id">Back</a>
+        <button id="submit-button" data-button="yellow">Checkout</button>
+    </div>
+</form>

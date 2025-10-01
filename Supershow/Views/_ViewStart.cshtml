@@ -1,0 +1,10 @@
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@{
+    Layout = "_Layout";
+    ViewBag.Title = "Supershow";
+
+    var acc = Context.Items["Account"] as Account;
+    ViewBag.Authenticated = acc != null;
+    ViewBag.AccountType = acc?.AccountType?.Name;
+    ViewBag.AccountImageUrl = acc?.Image == null ? "/img/pfp.png" : $"/uploads/account/{acc.Image}";
+}

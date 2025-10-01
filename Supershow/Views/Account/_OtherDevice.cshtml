@@ -1,0 +1,15 @@
+@model List<Device>
+
+@foreach (var device in Model)
+{
+    <div class="device-group">
+        <div class="device-image @device.DeviceType"></div>
+        <div class="device-info">
+            <div class="device-name">@device.DeviceOS · @device.DeviceBrowser</div>
+            <div class="device-detail">@device.Address</div>
+        </div>
+        <a data-ajax="true" data-ajax-update="#device-group-container" data-ajax-url="/Account/LogoutDevice?id=@device.Id"
+            data-ajax-method="post" data-ajax-confirm="Are you sure you want to remove this device?"
+            class="device-remove"></a>
+    </div>
+}

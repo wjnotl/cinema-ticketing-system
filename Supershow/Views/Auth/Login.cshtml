@@ -1,0 +1,39 @@
+@model LoginVM
+
+@{
+    ViewBag.Title = "Login | Supershow";
+}
+
+<div class="form-container container-center">
+    <div class="title">Welcome to Supershow Malaysia</div>
+
+    <form  method="post">
+        <div class="form-group">
+            <label asp-for="Email"></label>
+            <div class="form-input">
+                <input asp-for="Email" placeholder="Enter your email address">
+            </div>
+            <span asp-validation-for="Email"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Password">Password</label>
+            <div class="form-input">
+                <input asp-for="Password" placeholder="Enter your password">
+                <input type="checkbox" class="password-show-button">
+            </div>
+            <span asp-validation-for="Password"></span>
+        </div>
+
+        <div class="form-group">
+            <button data-button="yellow" type="submit">Login</button>
+            <a class="float-right" href="/Auth/ForgotPassword">Forgot Password?</a>
+        </div>
+
+        <div class="form-group">
+            New User?
+            <a href="/Auth/Register" data-preserve-search-params>&nbspRegister</a>
+        </div>
+    </form>
+    
+</div>

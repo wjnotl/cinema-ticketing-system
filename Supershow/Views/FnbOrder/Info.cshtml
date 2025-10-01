@@ -1,0 +1,138 @@
+@model FnbOrder
+
+@{
+    ViewBag.Title = "F&B Order Info | Supershow";
+}
+
+@section head {
+    <style>
+        #qr-container {
+            width: 140px;
+            height: 140px;
+            padding: 10px;
+            background-color: white;
+        }
+
+        #qr-container>img {
+            width: 100%;
+        }
+
+        #qr-container>canvas {
+            display: none;
+        }
+
+        .item-container>*:has(img) {
+            width: 140px;
+            height: 140px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item-container img {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+}
+
+<div class="container info-container horizontal-center">
+    <div class="title">Order Details</div>
+    <div data-column-container="2">
+        <div id="qr-container"></div>
+        <div data-column-container="3">
+            <div>Id</div>
+            <div>:</div>
+            <div>@Model.Id</div>
+            <div>Date</div>
+            <div>:</div>
+            <div>@FormatService.ToDateTimeFormat(Model.CreatedAt, "dd MMM yyyy")</div>
+            <div>Time</div>
+            <div>:</div>
+            <div>@FormatService.ToDateTimeFormat(Model.CreatedAt, "hh:mm tt")</div>
+            <div>Pickup</div>
+            <div>:</div>
+            <div>
+                <span>@Model.Cinema.Name</span>
+                <a href="/Cinema/Info/@Model.Cinema.Slug" class="info-button"></a>
+                @if (Model.PickupExpiresAt != null)
+                {
+                    <span>(before @FormatService.ToDateTimeFormat(Model.PickupExpiresAt.Value, "dd MMM yyyy - hh:mm tt"))</span>
+                }
+            </div>
+            <div>Total Price</div>
+            <div>:</div>
+            <div>@FormatService.ToRMFormat(Model.FnbOrderItems.Sum(oi => oi.Price))</div>
+            <div>Status</div>
+            <div>:</div>
+            <div>@Model.Status</div>
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Payment?.PaymentType))
+{
+    <div class="container info-container horizontal-center">
+        <div class="title">Payment Details</div>
+        <div data-column-container="3">
+            <div>Payment Option</div>
+            <div>:</div>
+            <div>@Model.Payment.PaymentType</div>
+
+            @if (!string.IsNullOrEmpty(Model.Payment.Details))
+            {
+                <div>@(Model.Payment.PaymentType == "Card" ? "Card Number" : "Bank Name")</div>
+                <div>:</div>
+                <div>@Model.Payment.Details</div>
+            }
+
+            @if (Model.Payment.PaidAt != null)
+			{
+				<div>Paid At</div>
+				<div>:</div>
+				<div>@FormatService.ToDateTimeFormat(Model.Payment.PaidAt.Value, "dd MMM yyyy - hh:mm tt")</div>
+			}
+        </div>
+    </div>
+}
+
+<div class="container info-container horizontal-center">
+    <div class="title">Items Ordered</div>
+
+    @foreach (var item in Model.FnbOrderItems)
+    {
+        var variant = item.FnbItemVariant;
+
+        <div class="content-container item-container" data-column-container="2">
+            <div>
+                <img src="/uploads/fnb/@variant.Image">
+            </div>
+            <div data-column-container="3">
+                <div>Id</div>
+                <div>:</div>
+                <div>@variant.Id</div>
+                <div>Name</div>
+                <div>:</div>
+                <div>@variant.FnbItem.Name</div>
+                <div>Variant</div>
+                <div>:</div>
+                <div>@variant.Name</div>
+                <div>Quantity</div>
+                <div>:</div>
+                <div>@item.Quantity</div>
+                <div>Subtotal</div>
+                <div>:</div>
+                <div>@FormatService.ToRMFormat(item.Price)</div>
+            </div>
+        </div>
+    }
+</div>
+
+@section foot {
+    <script src="/js/qrcode.min.js"></script>
+    <script>
+        var bookingId = "@Model.Id";
+        new QRCode(document.getElementById("qr-container"), bookingId);
+    </script>
+}

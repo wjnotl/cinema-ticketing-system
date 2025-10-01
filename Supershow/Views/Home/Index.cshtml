@@ -1,0 +1,321 @@
+﻿@inject ShowtimeService showSrv
+@model HomePageVM
+
+@{
+    ViewBag.Title = "Home | Supershow";
+}
+
+@section head {
+    <style>
+        .banner-page-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .banner {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .banner-button-container {
+            position: absolute;
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            bottom: 60px;
+        }
+
+        .banner-pagination-bullet-container {
+            position: absolute;
+            display: flex;
+            flex-direction: row;
+            gap: 7px;
+            bottom: 20px;
+            margin-left: var(--content-width-margin);
+            margin-right: var(--content-width-margin);
+        }
+
+        .banner-pagination-bullet {
+            width: 8px;
+            height: 8px;
+            background-color: #ffffff;
+            opacity: 0.45;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+
+        .banner-pagination-bullet.selected {
+            opacity: 1;
+            width: 20px;
+            pointer-events: none;
+        }
+
+        .banner-navigate-button-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            width: calc(100% - 20px);
+            margin-left: 10px;
+            margin-right: 10px;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .banner-navigate-button {
+            width: 48px;
+            height: 48px;
+            background-size: 80%;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-position: center;
+        }
+
+        .banner-navigate-button:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .banner-navigate-button[data-banner-navigate="prev"] {
+            background-image: url("/img/prev.png");
+        }
+
+        .banner-navigate-button[data-banner-navigate="next"] {
+            background-image: url("/img/next.png");
+        }
+
+        [data-drag-scroll] {
+            user-select: none;
+            position: relative;
+        }
+
+        [data-scroll-swiper] {
+            background: linear-gradient(to left, rgba(17, 17, 17, 0) 0%, #111111 100%);
+            height: 100%;
+            width: 60px;
+            position: absolute;
+            top: 0;
+        }
+
+        [data-scroll-swiper]:has([data-scroll-next]) {
+            right: 0;
+            background: linear-gradient(to right, rgba(17, 17, 17, 0) 0%, #111111 100%);
+        }
+
+        [data-fade] {
+            transition: all 0.5s ease;
+        }
+
+        [data-fade-out] {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        [data-scroll-next],
+        [data-scroll-prev] {
+            width: 30px;
+            height: 30px;
+            background-color: var(--yellow-button-color);
+            border-radius: 50%;
+            cursor: pointer;
+            background-position: center;
+            background-size: 80%;
+            background-repeat: no-repeat;
+            transition: all 0.3s ease;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        [data-scroll-next]:hover,
+        [data-scroll-prev]:hover {
+            background-color: var(--yellow-button-hover-color);
+        }
+
+        [data-scroll-next] {
+            background-image: url("/img/next.png");
+        }
+
+        [data-scroll-prev] {
+            background-image: url("/img/prev.png");
+        }
+    </style>
+}
+
+<div class="banner-container">
+    <div class="banner-page-container">
+        @for (var i = 0; i < Model.Banners.Count; i++)
+        {
+            var banner = Model.Banners[i];
+
+            <div class="banner" data-banner-index="@(i + 1)" data-fade @(i != 0 ? "data-fade-out" : "")>
+                <img src="@(banner.Movie == null ? "/img/banner.jpg" : $"/uploads/banner/{banner.Movie.Banner}")">
+                <div class="container banner-button-container">
+                    @if (banner.Movie == null)
+                    {
+                        <a href="/Movie" data-button="yellow">Explore More</a>
+                    }
+                    else
+                    {
+                        var haveTrailer = !string.IsNullOrEmpty(banner.Movie.Trailer);
+
+                        if (banner.HaveShowtime)
+                        {
+                            if (haveTrailer)
+                            {
+                                <a href="@banner.Movie.Trailer" target="_blank" data-button="outline">Watch Trailer</a>
+                            }
+                            else
+                            {
+                                <a href="/Movie/Info/@banner.Movie.Slug" data-button="outline">View Info</a>
+                            }
+                            <a href="/Movie/Showtimes/@banner.Movie.Slug" data-button="yellow">Buy Ticket</a>
+                        }
+                        else
+                        {
+                            <a href="/Movie/Info/@banner.Movie.Slug" data-button="outline">View Info</a>
+                            if (haveTrailer)
+                            {
+                                <a href="@banner.Movie.Trailer" target="_blank" data-button="yellow">Watch Trailer</a>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+    <div class="banner-pagination-bullet-container">
+        @for (var i = 0; i < Model.Banners.Count; i++)
+        {
+            <div data-toggle-radio="banner" data-banner-index="@(i + 1)"
+                class="banner-pagination-bullet @(i == 0 ? "selected" : "")"></div>
+        }
+    </div>
+    <div class="banner-navigate-button-container">
+        <div class="banner-navigate-button" data-banner-navigate="prev"></div>
+        <div class="banner-navigate-button" data-banner-navigate="next"></div>
+    </div>
+</div>
+
+@if (Model.NowShowing.Count == 0 && Model.BookEarly.Count == 0 && Model.ComingSoon.Count == 0)
+{
+    string noResultText = "No Movies Available Currently";
+    <partial name="_NoResults" model="noResultText" />
+}
+
+@if (Model.NowShowing.Count > 0)
+{
+    <div class="container movie-category-title-container">
+        <div class="movie-category-title">Now Showing</div>
+        <a href="/Movie">View More</a>
+    </div>
+
+    <div class="container" data-drag-scroll>
+        <div class="movie-container" data-scroll-track>
+            @foreach (var movie in Model.NowShowing)
+            {
+                <div class="movie-poster-container" data-hover>
+                    <img src="/uploads/poster/@movie.Poster">
+                    <div class="hover-container" data-hover-container>
+                        <div class="top">
+                            <span class="title">@movie.Title</span>
+                        </div>
+                        <div class="bottom">
+                            <a href="/Movie/Info/@movie.Slug" class="button-full" data-button="outline">View Info</a>
+                            @if (showSrv.MovieHasActiveShowtime(movie.Id))
+                            {
+                                <a href="/Movie/Showtimes/@movie.Slug" class="button-full" data-button="yellow">Buy Ticket</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div data-scroll-swiper data-fade data-fade-out>
+            <div data-scroll-prev></div>
+        </div>
+        <div data-scroll-swiper data-fade data-fade-out>
+            <div data-scroll-next></div>
+        </div>
+    </div>
+}
+
+@if (Model.BookEarly.Count > 0)
+{
+    <div class="container movie-category-title-container">
+        <div class="movie-category-title">Book Early</div>
+        <a href="/Movie/Listing/BookEarly">View More</a>
+    </div>
+
+    <div class="container" data-drag-scroll>
+        <div class="movie-container" data-scroll-track>
+            @foreach (var movie in Model.BookEarly)
+            {
+                <div class="movie-poster-container" data-hover>
+                    <img src="/uploads/poster/@movie.Poster">
+                    <div class="hover-container" data-hover-container>
+                        <div class="top">
+                            <span class="title">@movie.Title</span>
+                        </div>
+                        <div class="bottom">
+                            <a href="/Movie/Info/@movie.Slug" class="button-full" data-button="outline">View Info</a>
+                            <a href="/Movie/Showtimes/@movie.Slug" class="button-full" data-button="yellow">Buy Ticket</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div data-scroll-swiper data-fade data-fade-out>
+            <div data-scroll-prev></div>
+        </div>
+        <div data-scroll-swiper data-fade data-fade-out>
+            <div data-scroll-next></div>
+        </div>
+    </div>
+}
+
+@if (Model.ComingSoon.Count > 0)
+{
+
+    <div class="container movie-category-title-container">
+        <div class="movie-category-title">Coming Soon</div>
+        <a href="/Movie/Listing/ComingSoon">View More</a>
+    </div>
+
+    <div class="container" data-drag-scroll>
+        <div class="movie-container" data-scroll-track>
+            @foreach (var movie in Model.ComingSoon)
+            {
+                <div class="movie-poster-container" data-hover>
+                    <img src="/uploads/poster/@movie.Poster">
+                    <div class="hover-container" data-hover-container>
+                        <div class="top">
+                            <span class="title">@movie.Title</span>
+                        </div>
+                        <div class="bottom">
+                            <a href="/Movie/Info/@movie.Slug" class="button-full" data-button="outline">View Info</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div data-scroll-swiper data-fade data-fade-out>
+            <div data-scroll-prev></div>
+        </div>
+        <div data-scroll-swiper data-fade data-fade-out>
+            <div data-scroll-next></div>
+        </div>
+    </div>
+}

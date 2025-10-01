@@ -1,0 +1,30 @@
+@{
+    ViewBag.Title = "Delete Account Confirmation | Supershow";
+}
+
+<div class="form-container container-center">
+    <div class="title">Confirm Delete Account</div>
+    <form method="post" data-expired-timestamp="@ViewBag.ExpiredTimestamp">
+        <div class="form-group">
+            @if (ViewBag.RequestAccountType == "Customer")
+            {
+                <div>By confirming, your account will be scheduled for deletion in <strong>7 days</strong>.</div>
+            }
+            else
+            {
+                <div>By confirming, your account will be deleted.</div>
+            }
+        </div>
+        <div class="form-group">
+            <div>This action is permanent and cannot be undone.</div>
+        </div>
+        @if (ViewBag.RequestAccountType == "Customer")
+        {
+            <div class="form-group">
+                <div>If you change your mind, simply <a href="/Auth/Login"><strong>LOGIN</strong></a> again within 7 days to cancel the deletion.
+                </div>
+            </div>
+        }
+        <button class="button-full" type="submit" data-button="red">Confirm Delete Account</button>
+    </form>
+</div>

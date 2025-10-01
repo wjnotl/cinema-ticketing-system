@@ -1,0 +1,36 @@
+@model (FnbItem FnbItem, int Quantity, int? CategoryId, bool IsCartEmpty)
+
+@if (Model.CategoryId != 0 || Model.Quantity > 0)
+{
+    var minPrice = Model.FnbItem.FnbItemVariants.Where(v => !v.IsDeleted).Min(v => v.Price);
+    var maxPrice = Model.FnbItem.FnbItemVariants.Where(v => !v.IsDeleted).Max(v => v.Price);
+    var itemPrice = minPrice != maxPrice ?
+    $"{FormatService.ToRMFormat(minPrice)} ~ {FormatService.ToRMFormat(maxPrice)}" :
+    $"{FormatService.ToRMFormat(minPrice)}";
+
+    <div class="product-container" data-fnb-item="@Model.FnbItem.Id">
+        <div>
+            <img class="image" src="/uploads/fnb/@Model.FnbItem.Image">
+            <div class="product-info-container">
+                <div class="name">@Model.FnbItem.Name</div>
+                <button type="button" data-button="blue">
+                    <span>Select Variation</span>
+                    <img src="/img/next.png">
+                </button>
+            </div>
+        </div>
+        <div>
+            <div class="price">@itemPrice</div>
+            <div class="quantity-container">
+                <button class="minus-quantity" data-button="yellow">-</button>
+                <div class="quantity-number" data-quantity-value="@Model.Quantity">@Model.Quantity</div>
+                <button class="add-quantity" data-button="yellow">+</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.IsCartEmpty)
+{
+    <partial name="_NoResults" model="@("Your cart is empty")" />
+}

@@ -1,0 +1,48 @@
+@model List<WalletTransaction>
+
+@if (Model.Count == 0)
+{
+    <partial name="_NoResults" model="@("No transactions found")"/>
+}
+else
+{
+    @foreach (var transaction in Model)
+    {
+        string link = "";
+        string description = string.IsNullOrEmpty(transaction.Description) ? "Unknown Transaction" : transaction.Description;
+        string timeStamp = @FormatService.ToDateTimeFormat(transaction.CreatedAt, "dd MMM yyyy - hh:mm:ss tt");
+        bool negative = transaction.Amount < 0;
+        string amount = @FormatService.ToRMFormat(Math.Abs(transaction.Amount));
+
+        var payment = transaction.Payment;
+        if (!string.IsNullOrEmpty(payment?.BookingId))
+        {
+            link = $"/Booking/Info/{payment.BookingId}";
+        }
+        else if (!string.IsNullOrEmpty(payment?.FnbOrderId))
+        {
+            link = $"/FnbOrder/Info/{payment.FnbOrderId}";
+        }
+
+        if (string.IsNullOrEmpty(link))
+        {
+            <div class="transaction-container">
+                <div>
+                    <div class="title">@description</div>
+                    <div class="time-stamp">@timeStamp</div>
+                </div>
+                <div class="price @(negative ? "minus" : "")">@amount</div>
+            </div>
+        }
+        else
+        {
+            <a href="@link" class="transaction-container">
+                <div>
+                    <div class="title">@description</div>
+                    <div class="time-stamp">@timeStamp</div>
+                </div>
+                <div class="price @(negative ? "minus" : "")">@amount</div>
+            </a>
+        }
+    }
+}

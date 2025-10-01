@@ -1,0 +1,10 @@
+@model (DateTime? StartTime, int? Duration)
+
+@if (Model.StartTime == null || Model.Duration == null)
+{
+    @("Unknown")
+}
+else
+{
+    @FormatService.ToDateTimeFormat(Model.StartTime.Value.AddMinutes(Model.Duration.Value + 10), "dd MMM yyyy - hh:mm tt")
+}

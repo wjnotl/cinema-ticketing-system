@@ -1,0 +1,120 @@
+@model MovieListingVM
+
+@{
+    ViewBag.Title = "Movie Listing | Supershow";
+}
+
+@section head {
+    <style>
+        .movie-listing-heading-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .movie-listing-category-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .movie-listing-category-container .category-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .movie-listing-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+    </style>
+}
+
+<div class="container movie-listing-heading-container">
+    <div class="movie-listing-category-container">
+        <a href="/Movie/Listing" class="category-title @(Model.Category == "NowShowing" ? "selected" : "")"
+            data-selectable-title>Now Showing</a>
+        <a href="/Movie/Listing/BookEarly" class="category-title @(Model.Category == "BookEarly" ? "selected" : "")"
+            data-selectable-title>Book Early</a>
+        <a href="/Movie/Listing/ComingSoon" class="category-title @(Model.Category == "ComingSoon" ? "selected" : "")"
+            data-selectable-title>Coming Soon</a>
+    </div>
+    <div id="filter" data-link>Filter by</div>
+</div>
+
+<div id="filter-overlay" class="overlay">
+    <div class="content">
+        <div class="overlay-header">
+            <div class="title">Filter By</div>
+            <div class="overlay-close"></div>
+        </div>
+        <form class="overlay-body"
+            data-ajax="true"
+            data-ajax-update="#listing-result-container"
+            data-ajax-complete="closeOverlay('filter-overlay')"
+        >
+            <div class="form-group">
+                <label>Genre</label>
+                <div class="custom-tick-container center-text small-text rounded-border">
+                    @foreach (var genre in Model.AvailableGenres)
+                    {
+                        <label>
+                            <input type="checkbox" name="Genres" value="@genre.Id" @(Model.Genres.Contains(genre.Id) ?
+                                                                                                               "checked" : "")>
+                            <div>
+                                <div class="custom-tick-text">@genre.Name</div>
+                            </div>
+                        </label>
+                    }
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Language</label>
+                <div class="custom-tick-container center-text small-text rounded-border">
+                    @foreach (var language in Model.AvailableLanguages)
+                    {
+                        <label>
+                            <input type="checkbox" name="Languages" value="@language.Id"
+                                @(Model.Languages.Contains(language.Id) ? "checked" : "")>
+                            <div>
+                                <div class="custom-tick-text">@language.Name</div>
+                            </div>
+                        </label>
+                    }
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Classification</label>
+                <div class="custom-tick-container center-text small-text rounded-border">
+                    @foreach (var classification in Model.AvailableClassifications)
+                    {
+                        <label>
+                            <input type="checkbox" name="Classifications" value="@classification.Id"
+                                @(Model.Classifications.Contains(classification.Id) ? "checked" : "")>
+                            <div>
+                                <div class="custom-tick-text">@classification.Name</div>
+                            </div>
+                        </label>
+                    }
+                </div>
+            </div>
+
+            <div class="button-group-inline">
+                <button type="button" data-button="outline" data-clear-form>Reset</button>
+                <button type="submit" data-button="yellow">Apply</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="listing-result-container" class="container movie-listing-container">
+    <partial name="_ListingResult" model="Model.Results" />
+</div>
+
+@section foot {
+    <script>
+        
+    </script>
+}

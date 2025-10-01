@@ -1,0 +1,67 @@
+@model FnbOrder
+
+@{
+    ViewBag.Title = "F&B Order Checkout | Supershow";
+}
+
+@section head {
+    <style>
+        .item-container>*:has(img) {
+            width: 140px;
+            height: 140px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item-container img {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+}
+
+<partial name="_FnbOrderInfo" model="@(2, Model.Cinema)" />
+
+<div class="container info-container horizontal-center">
+    <div class="title">Selected Item@(ViewBag.TotalOrderItems > 1 ? "s" : "")</div>
+
+    @foreach (var item in Model.FnbOrderItems)
+    {
+        var variant = item.FnbItemVariant;
+
+        <div class="content-container item-container" data-column-container="2">
+            <div>
+                <img src="/uploads/fnb/@variant.Image">
+            </div>
+            <div data-column-container="3">
+                <div>Id</div>
+                <div>:</div>
+                <div>@variant.Id</div>
+                <div>Name</div>
+                <div>:</div>
+                <div>@variant.FnbItem.Name</div>
+                <div>Variant</div>
+                <div>:</div>
+                <div>@variant.Name</div>
+                <div>Quantity</div>
+                <div>:</div>
+                <div>@item.Quantity</div>
+                <div>Subtotal</div>
+                <div>:</div>
+                <div>@FormatService.ToRMFormat(item.Price)</div>
+            </div>
+        </div>
+    }
+</div>
+
+<form method="post" data-expired-timestamp="@ViewBag.ExpiredTimestamp" id="summary-container">
+    <div class="summary-info">
+        <partial name="_Summary" />
+    </div>
+    <div>
+        <a data-expired-disable data-button="blue" href="/FnbOrder/Menu/@Model.Id">Back</a>
+        <button id="submit-button" data-button="yellow">Checkout</button>
+    </div>
+</form>

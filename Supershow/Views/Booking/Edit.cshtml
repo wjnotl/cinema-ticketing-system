@@ -1,0 +1,236 @@
+@model Booking
+
+@{
+    ViewBag.Title = "Edit Booking | Supershow";
+}
+
+@section head {
+	<style>
+		#qr-container {
+			width: 140px;
+			height: 140px;
+			padding: 10px;
+			background-color: white;
+		}
+
+		#qr-container>img {
+			width: 100%;
+		}
+
+		#qr-container>canvas {
+			display: none;
+		}
+
+		.poster-container img {
+			width: 160px;
+			aspect-ratio: 1 / 1.5;
+		}
+
+		.poster-container:hover {
+			filter: brightness(70%);
+		}
+
+		.seat-container>*:has(img) {
+			width: 80px;
+			margin-right: 10px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.seat-container img {
+			height: 30px;
+		}
+	</style>
+}
+
+<div class="container info-container horizontal-center">
+	<div class="title">Booking Details</div>
+	<div data-column-container="2">
+		<div id="qr-container"></div>
+		<div data-column-container="3">
+			<div>Id</div>
+			<div>:</div>
+			<div>@Model.Id</div>
+			<div>Date</div>
+			<div>:</div>
+			<div>@FormatService.ToDateTimeFormat(Model.CreatedAt, "dd MMM yyyy")</div>
+			<div>Time</div>
+			<div>:</div>
+			<div>@FormatService.ToDateTimeFormat(Model.CreatedAt, "hh:mm tt")</div>
+			<div>Total Seats</div>
+			<div>:</div>
+			<div>@Model.Tickets.Count</div>
+			<div>Total Price</div>
+			<div>:</div>
+			<div>@FormatService.ToRMFormat(Model.Tickets.Sum(t => t.Price))</div>
+			<div>Status</div>
+			<div>:</div>
+			<div>@Model.Status</div>
+		</div>
+	</div>
+</div>
+
+<div class="container info-container horizontal-center">
+	<div class="title">Customer Details</div>
+	<div data-column-container="3">
+		<div>Id</div>
+		<div>:</div>
+		<div>@Model.AccountId</div>
+		<div>Name</div>
+		<div>:</div>
+		<div>@Model.Account.Name</div>
+		<div>Email Address</div>
+		<div>:</div>
+		<div>@Model.Account.Email</a></div>
+	</div>
+</div>
+
+<div class="container info-container horizontal-center">
+	<div class="title">Showtime Details</div>
+	<div data-column-container="3">
+		<div>Experience</div>
+		<div>:</div>
+		<div>
+			<img src="/img/experience/@(Model.Showtime.Hall.Experience.Slug).png">
+			<a href="/Experience/Info/@Model.Showtime.Hall.Experience.Slug" class="info-button"></a>
+		</div>
+		<div>Date</div>
+		<div>:</div>
+		<div>@FormatService.ToDateTimeFormat(Model.Showtime.StartTime, "dd MMM yyyy")</div>
+		<div>Time</div>
+		<div>:</div>
+		<div>@FormatService.ToDateTimeFormat(Model.Showtime.StartTime, "hh:mm tt")</div>
+		<div>Cinema</div>
+		<div>:</div>
+		<div>
+			<span>@Model.Showtime.Hall.Cinema.Name</span>
+		</div>
+		<div>Hall</div>
+		<div>:</div>
+		<div>@Model.Showtime.Hall.Name</div>
+	</div>
+</div>
+
+<div class="container info-container horizontal-center">
+	<div class="title">Movie Details</div>
+	<div data-column-container="2">
+		@if (Model.Showtime.Movie.Status == "Archived")
+		{
+			<div class="poster-container"><img src="/uploads/poster/@Model.Showtime.Movie.Poster"></div>
+		}
+		else
+		{
+			<a href="/Movie/Info/@Model.Showtime.Movie.Slug" class="poster-container"><img
+					src="/uploads/poster/@Model.Showtime.Movie.Poster"></a>
+		}
+		<div data-column-container="3">
+			<div>Id</div>
+			<div>:</div>
+			<div>@Model.Showtime.MovieId</div>
+			<div>Title</div>
+			<div>:</div>
+			<div>@Model.Showtime.Movie.Title</div>
+			<div>Duration</div>
+			<div>:</div>
+			<div>@FormatService.ToDurationFormat(Model.Showtime.Movie.Duration)</div>
+			<div>Spoken Language</div>
+			<div>:</div>
+			<div>@Model.Showtime.Movie.SpokenLanguage.Name</div>
+			<div>Subtitle</div>
+			<div>:</div>
+			<div>@string.Join(", ", Model.Showtime.Movie.Subtitles.Select(s => s.Name))</div>
+			<div>Genre</div>
+			<div>:</div>
+			<div>@string.Join(", ", Model.Showtime.Movie.Genres.Select(g => g.Name))</div>
+			<div>Classification</div>
+			<div>:</div>
+			<div>@Model.Showtime.Movie.Classification.Name</div>
+		</div>
+	</div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Payment?.PaymentType))
+{
+	<div class="container info-container horizontal-center">
+		<div class="title">Payment Details</div>
+		<div data-column-container="3">
+			<div>Payment Option</div>
+			<div>:</div>
+			<div>@Model.Payment.PaymentType</div>
+
+			@if (!string.IsNullOrEmpty(Model.Payment.Details))
+			{
+				<div>@(Model.Payment.PaymentType == "Card" ? "Card Number" : "Bank Name")</div>
+				<div>:</div>
+				<div>@Model.Payment.Details</div>
+			}
+
+			@if (Model.Payment.PaidAt != null)
+			{
+				<div>Paid At</div>
+				<div>:</div>
+				<div>@FormatService.ToDateTimeFormat(Model.Payment.PaidAt.Value, "dd MMM yyyy hh:mm tt")</div>
+			}
+		</div>
+	</div>
+}
+
+<div class="container info-container horizontal-center">
+	<div class="title">Seat Details</div>
+
+	@foreach (var ticket in Model.Tickets)
+	{
+		<div class="content-container seat-container" data-column-container="2">
+			<div>
+				<img src="/img/seat/@(ticket.Seat.SeatType.ColumnSpan == 1 ? "single" : "twin").png">
+			</div>
+			<div data-column-container="3">
+				<div>Seat</div>
+				<div>:</div>
+				<div>@ticket.Seat.Name</div>
+				<div>Type</div>
+				<div>:</div>
+				<div>@ticket.Seat.SeatType.Name</div>
+				<div>Price</div>
+				<div>:</div>
+				<div>@FormatService.ToRMFormat(ticket.Price)</div>
+			</div>
+		</div>
+	}
+</div>
+
+@if (Model.Status == "Pending" || Model.Status == "Unpaid" || Model.Status == "Confirmed")
+{
+	<div class="container info-container horizontal-center">
+		<div class="title">Action</div>
+		<div class="action-button-container">
+            @if (Model.Status == "Confirmed") {
+                <a href="@Url.Action("Complete", new { id = Model.Id})" data-button="green" 
+                data-ajax="true" 
+                data-ajax-method="POST"
+                data-ajax-confirm="Are you sure you want to complete this booking?" 
+                data-ajax-failure="defaultOnFailure" 
+                data-ajax-complete="reloadPage()"
+                >Complete Booking</a>
+            }
+            @if (Model.Status == "Pending" || Model.Status == "Unpaid" || Model.Status == "Confirmed") {
+                <a href="@Url.Action("Cancel", new { id = Model.Id})" data-button="red" 
+                data-ajax="true" 
+                data-ajax-method="POST"
+                data-ajax-confirm="Are you sure you want to cancel this booking?" 
+                data-ajax-failure="defaultOnFailure" 
+                data-ajax-complete="redirectToPage('@Url.Action("Manage", new { CinemaId = Model.Showtime.Hall.CinemaId })')"
+                >Cancel Booking</a>
+            }
+		</div>
+	</div>
+}
+
+@section foot {
+	<script src="/js/qrcode.min.js"></script>
+	<script>
+		var bookingId = "@Model.Id";
+		new QRCode(document.getElementById("qr-container"), bookingId);
+	</script>
+}
