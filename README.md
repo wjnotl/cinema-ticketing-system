@@ -7,19 +7,19 @@ It also provides an admin interface to manage movies, showtimes, seats, and food
 
 ### 🏠 Home Page
 Shows currently available movies and showtimes.
-![Home Page](assets/home.gif)
+![Home Page](./assets/home.gif)
 
 ### 🎟️ Ticket Booking
 Browse movies, choose a showtime, select seats, and confirm your booking.
-![Booking](assets/booking.gif)
+![Booking](./assets/booking.gif)
 
 ### 🍿 F&B Ordering
 Order snacks and drinks along with your movie ticket.
-![F&B Order](assets/fnb.gif)
+![F&B Order](./assets/fnb.gif)
 
 ### ⚙️ Admin Management
 Manage movies, showtimes, seat layouts, and F&B items.
-![Admin Management](assets/admin.gif)
+![Admin Management](./assets/admin.gif)
 
 ---
 
